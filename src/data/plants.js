@@ -1,0 +1,58 @@
+const plants = [
+  {
+    id: 1,
+    name: 'Monstera',
+    species: 'Monstera deliciosa',
+    last_watered: '2026-04-30',
+    health: 'Thriving',
+    image_url: '/plants/monstera.png',
+    height: 320,
+  },
+  {
+    id: 2,
+    name: 'Snake Plant',
+    species: 'Dracaena trifasciata',
+    last_watered: '2026-04-28',
+    health: 'Healthy',
+    image_url: '/plants/snake-plant.png',
+    height: 260,
+  },
+  {
+    id: 3,
+    name: 'Fiddle Leaf Fig',
+    species: 'Ficus lyrata',
+    last_watered: '2026-04-29',
+    health: 'Needs Water',
+    image_url: '/plants/fiddle-leaf-fig.png',
+    height: 340,
+  },
+  {
+    id: 4,
+    name: 'Golden Pothos',
+    species: 'Epipremnum aureum',
+    last_watered: '2026-05-01',
+    health: 'Thriving',
+    image_url: '/plants/pothos.png',
+    height: 240,
+  },
+  {
+    id: 5,
+    name: 'Succulent Mix',
+    species: 'Echeveria & Crassula',
+    last_watered: '2026-04-25',
+    health: 'Healthy',
+    image_url: '/plants/succulent.png',
+    height: 220,
+  },
+  {
+    id: 6,
+    name: 'Peace Lily',
+    species: 'Spathiphyllum',
+    last_watered: '2026-04-27',
+    health: 'Needs Attention',
+    image_url: '/plants/peace-lily.png',
+    height: 290,
+  },
+];
+
+export default plants;
