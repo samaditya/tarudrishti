@@ -5,7 +5,7 @@ import PlantCard from './PlantCard';
 import WeatherWidget from './WeatherWidget';
 import ErrorBoundary from './ErrorBoundary';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function PlantGallery({ onSelectPlant }) {
   const [plants, setPlants] = useState([]);

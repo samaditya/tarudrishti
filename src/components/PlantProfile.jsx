@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, Droplets, Leaf, ShieldAlert, CheckCircle2, WifiOff, Loader2, Trash2 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 /* ===========================================================================
    Care Metric Configuration
