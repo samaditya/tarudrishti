@@ -10,12 +10,19 @@ It goes beyond a simple chatbot by using a **multi-agent orchestration system** 
 
 ## 📸 Preview
 
-> Add screenshots here
 
-- Dashboard View  
-- Plant Gallery  
-- AI Diagnosis Output  
-- Voice Interaction  
+-Home Page <img width="2930" height="1596" alt="image" src="https://github.com/user-attachments/assets/2af81afc-f272-40ce-8d3c-76d82b9480dd" />
+
+- Dashboard View <img width="2930" height="1596" alt="image" src="https://github.com/user-attachments/assets/a1a0460f-e17c-4eef-8945-88a4b1c67853" />
+
+My Garden view- <img width="2930" height="1596" alt="image" src="https://github.com/user-attachments/assets/8dbeca89-eb3a-4468-90d7-640b5f296951" />
+
+- Plant Gallery  <img width="2930" height="1596" alt="image" src="https://github.com/user-attachments/assets/dea53fc3-60e9-42c1-9a78-49a9dbe1ca69" />
+
+- AI Diagnosis Output  <img width="2930" height="1596" alt="image" src="https://github.com/user-attachments/assets/4bca9fc1-dafc-44d3-8d9c-3eb94cef1248" />
+
+- Voice Interaction  <img width="2930" height="1596" alt="image" src="https://github.com/user-attachments/assets/a3fbab69-7ba7-4129-bbf9-5b7694da4ecf" />
+
 
 ---
 
@@ -66,21 +73,14 @@ Tarudrishti uses a **modular multi-agent system** instead of a single LLM prompt
 ---
 
 ## 🏗️ System Architecture
-User (Text / Voice / Image)
-↓
-Router Agent (Intent Classification)
-↓
-┌───────────────┬───────────────┬───────────────┐
-│ Logger Agent │ Diagnostician │ Onboarding │
-│ │ Agent │ Agent │
-└───────────────┴───────────────┴───────────────┘
-↓
-Database (Plants + Care Logs)
-↓
-Scheduler (APScheduler)
-↓
-Email Notification System
+<img width="2464" height="2330" alt="image" src="https://github.com/user-attachments/assets/4878478c-c6d7-429a-bb74-aa79b05532e0" />
 
+### 🔍 Key Design Decisions
+
+- Used a router-based architecture instead of a single LLM prompt  
+- Enforced structured outputs using Pydantic schemas  
+- Separated intent classification from execution for reliability  
+- Integrated contextual signals (weather + history) into AI reasoning  
 
 ---
 
