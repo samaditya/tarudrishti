@@ -9,13 +9,26 @@ const healthConfig = {
 };
 
 export default function PlantCard({ plant, index, onClick }) {
-  const { name, species, last_watered, health, image_url } = plant;
+  const { name, species, health_status, image_url, care_logs } = plant;
+  
+  const waterLogs = care_logs?.filter(log => log.action_type.toLowerCase().includes('water')) || [];
+  waterLogs.sort((a, b) => new Date(b.action_date) - new Date(a.action_date));
+  const last_watered = waterLogs.length > 0 ? waterLogs[0].action_date : null;
+
+  const substanceLogs = care_logs?.filter(log => log.substance_used) || [];
+  substanceLogs.sort((a, b) => new Date(b.action_date) - new Date(a.action_date));
+  const last_substance_log = substanceLogs.length > 0 ? substanceLogs[0] : null;
+
+  const health = health_status || 'Healthy';
   const status = healthConfig[health] || healthConfig.Healthy;
 
   const formatDate = (dateStr) => {
+    if (!dateStr) return 'Not yet';
     const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return 'Not yet';
     const now = new Date();
     const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+    if (diffDays < 0) return 'Future';
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
     return `${diffDays}d ago`;
@@ -86,11 +99,21 @@ export default function PlantCard({ plant, index, onClick }) {
           <p className="text-white/55 text-[12px] font-normal mt-0.5 tracking-tight">
             {species}
           </p>
-          <div className="flex items-center gap-1 mt-1.5">
-            <Droplets size={11} className="text-white/40" />
-            <span className="text-white/40 text-[10px] font-medium tracking-tight">
-              {formatDate(last_watered)}
-            </span>
+          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+            <div className="flex items-center gap-1">
+              <Droplets size={11} className="text-white/40" />
+              <span className="text-white/40 text-[10px] font-medium tracking-tight">
+                {formatDate(last_watered)}
+              </span>
+            </div>
+            {last_substance_log && (
+              <div className="flex items-center gap-1">
+                <div className="w-[3px] h-[3px] rounded-full bg-white/20 mx-0.5" />
+                <span className="text-white/40 text-[10px] font-medium tracking-tight truncate max-w-[90px]">
+                  {last_substance_log.substance_used} {formatDate(last_substance_log.action_date)}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>

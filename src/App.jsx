@@ -4,9 +4,11 @@ import PlantGallery from './components/PlantGallery';
 import AIChatSheet from './components/AIChatSheet';
 import LandingPage from './components/LandingPage';
 import PlantProfile from './components/PlantProfile';
+import ScheduleView from './components/ScheduleView';
 
 export default function App() {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('gallery');
   const [user, setUser] = useState(() => {
     try {
       const saved = localStorage.getItem('tarudrishti_user');
@@ -37,8 +39,12 @@ export default function App() {
   }
 
   return (
-    <Layout onFabClick={() => setIsChatOpen(true)} user={user} onLogout={handleLogout}>
-      <PlantGallery onSelectPlant={setSelectedPlant} />
+    <Layout activeTab={activeTab} onTabChange={setActiveTab} onFabClick={() => setIsChatOpen(true)} user={user} onLogout={handleLogout}>
+      {activeTab === 'gallery' ? (
+        <PlantGallery onSelectPlant={setSelectedPlant} />
+      ) : (
+        <ScheduleView onSelectPlant={setSelectedPlant} />
+      )}
       <AIChatSheet isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </Layout>
   );

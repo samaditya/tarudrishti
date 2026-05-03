@@ -60,30 +60,36 @@ export default function PlantGallery({ onSelectPlant }) {
             {plants.length} plant{plants.length !== 1 ? 's' : ''} · {isLoading ? 'Syncing...' : 'All healthy'}
           </p>
         </div>
-
-        {/* Premium Search Bar */}
-        <div className="relative w-full max-w-md">
-          <div className="absolute inset-y-0 left-2 pl-4 flex items-center pointer-events-none">
-            <Search size={18} style={{ color: 'var(--text-tertiary)' }} strokeWidth={2.5} />
-          </div>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-[46px] pl-[48px] pr-4 rounded-xl outline-none transition-all duration-200 
-                       bg-[var(--fill-secondary)] border border-[var(--separator)] 
-                       text-[var(--text-primary)] text-[15px] font-medium placeholder-[var(--text-tertiary)]
-                       focus:bg-[var(--fill-tertiary)] focus:border-[var(--accent)] 
-                       focus:ring-4 focus:ring-[var(--accent-dimmed)]"
-          />
-        </div>
       </motion.div>
 
-      {/* AI Weather Insights Widget */}
-      <div className="flex justify-end w-full mb-6 sm:mb-8">
-        <ErrorBoundary componentName="WeatherWidget">
-          <WeatherWidget />
-        </ErrorBoundary>
+      {/* Action Bar: Search & Weather */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center w-full mb-8 sm:mb-10 relative z-10">
+        <div className="hidden lg:block" /> {/* Left Spacer for centering Search */}
+        
+        <div className="flex justify-center w-full relative group">
+          {/* Premium Search Bar */}
+          <div className="relative w-full max-w-md">
+            <div className="absolute inset-y-0 left-2 pl-4 flex items-center pointer-events-none">
+              <Search size={18} style={{ color: 'var(--text-tertiary)' }} strokeWidth={2.5} />
+            </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-[46px] pl-[48px] pr-4 rounded-xl outline-none transition-all duration-200 
+                         bg-[var(--fill-secondary)] border border-[var(--separator)] 
+                         text-[var(--text-primary)] text-[15px] font-medium placeholder-[var(--text-tertiary)]
+                         focus:bg-[var(--fill-tertiary)] focus:border-[var(--accent)] 
+                         focus:ring-4 focus:ring-[var(--accent-dimmed)]"
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-center lg:justify-end w-full">
+           <ErrorBoundary componentName="WeatherWidget">
+             <WeatherWidget />
+           </ErrorBoundary>
+        </div>
       </div>
 
       {/* Loading State — Skeleton Grid */}

@@ -10,9 +10,24 @@ import models
 import schemas
 
 from fastapi.middleware.cors import CORSMiddleware
+from apscheduler.schedulers.background import BackgroundScheduler
+from contextlib import asynccontextmanager
+import mailer
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Initialize the scheduler
+    scheduler = BackgroundScheduler()
+    # Schedule the mailer to run daily at 8:00 AM
+    scheduler.add_job(mailer.check_and_send_daily_notifications, 'cron', hour=8, minute=0)
+    scheduler.start()
+    
+    yield
+    # Shutdown
+    scheduler.shutdown()
 
 # Initialize the FastAPI app
-app = FastAPI(title="Tarudrishti API")
+app = FastAPI(title="Tarudrishti API", lifespan=lifespan)
 
 # Configure CORS
 app.add_middleware(
@@ -43,6 +58,14 @@ def read_root():
         "message": "Tarudrishti Botanical Engine Active"
     }
 
+@app.get("/api/test-mailer")
+def test_mailer():
+    """
+    Test endpoint to instantly trigger the email notification agent.
+    """
+    mailer.check_and_send_daily_notifications()
+    return {"status": "success", "message": "Mailer job triggered in background."}
+
 # =============================================================================
 # Plant Endpoints
 # =============================================================================
@@ -55,7 +78,7 @@ def create_plant(plant: schemas.PlantCreate, db: Session = Depends(get_db)):
     db.refresh(db_plant)
     return db_plant
 
-@app.get("/api/plants", response_model=List[schemas.PlantResponse])
+@app.get("/api/plants", response_model=List[schemas.PlantDetailResponse])
 def read_plants(db: Session = Depends(get_db)):
     return db.query(models.Plant).all()
 
@@ -155,34 +178,54 @@ def orchestrate_chat(request: schemas.ChatRequest, db: Session = Depends(get_db)
             raise HTTPException(status_code=500, detail=f"Logger Agent extraction failed: {str(e)}")
 
         try:
-            search_term = f"%{extraction.plant_name_or_species}%"
-            plant = db.query(models.Plant).filter(
-                or_(
-                    models.Plant.name.ilike(search_term),
-                    models.Plant.species.ilike(search_term)
-                )
-            ).first()
-
-            if not plant:
-                raise HTTPException(
-                    status_code=404, 
-                    detail=f"Plant '{extraction.plant_name_or_species}' not found in database. Please add it first."
-                )
-
-            db_log = models.CareLog(
-                plant_id=plant.id,
-                action_type=extraction.action_type,
-                substance_used=extraction.substance_used,
-                action_date=extraction.action_date
-            )
-            db.add(db_log)
+            created_logs = []
+            for action in extraction.actions:
+                target_plants = []
+                if action.plant_name_or_species == 'ALL_PLANTS':
+                    target_plants = db.query(models.Plant).all()
+                else:
+                    search_term = f"%{action.plant_name_or_species}%"
+                    plant = db.query(models.Plant).filter(
+                        or_(
+                            models.Plant.name.ilike(search_term),
+                            models.Plant.species.ilike(search_term)
+                        )
+                    ).first()
+                    if plant:
+                        target_plants.append(plant)
+                    else:
+                        raise HTTPException(
+                            status_code=404, 
+                            detail=f"Plant '{action.plant_name_or_species}' not found in database. Please add it first."
+                        )
+                
+                for plant in target_plants:
+                    db_log = models.CareLog(
+                        plant_id=plant.id,
+                        action_type=action.action_type,
+                        substance_used=action.substance_used,
+                        action_date=action.action_date
+                    )
+                    db.add(db_log)
+                    created_logs.append(db_log)
+                    
             db.commit()
-            db.refresh(db_log)
+
+            # Summarize for the UI
+            is_bulk = len(extraction.actions) > 1 or any(a.plant_name_or_species == 'ALL_PLANTS' for a in extraction.actions)
+            first_action = extraction.actions[0]
+            
+            summary_data = {
+                "plant_name": "All Plants" if any(a.plant_name_or_species == 'ALL_PLANTS' for a in extraction.actions) else first_action.plant_name_or_species,
+                "action_type": "Multiple Actions" if len(extraction.actions) > 1 else first_action.action_type,
+                "substance_used": ", ".join(filter(None, [a.substance_used for a in extraction.actions])) or None,
+                "action_date": first_action.action_date.isoformat()
+            }
 
             return {
                 "intent": intent.value,
-                "message": "Care log successfully created via AI.",
-                "data": schemas.CareLogResponse.model_validate(db_log)
+                "message": f"Successfully logged care for {len(created_logs)} plant(s).",
+                "data": summary_data
             }
 
         except HTTPException:
@@ -194,21 +237,12 @@ def orchestrate_chat(request: schemas.ChatRequest, db: Session = Depends(get_db)
     elif intent == schemas.IntentType.DIAGNOSE_PLANT:
         # => The Diagnostician Agent (Vision-powered)
 
-        # Validate that the user has actually provided an image
-        if not request.image_base64:
-            return {
-                "intent": intent.value,
-                "status": "awaiting_image",
-                "message": "I've detected a diagnosis request. Please upload a photo of the affected plant so I can provide an accurate assessment."
-            }
-
         try:
             sys_msg = (
-                "You are an expert botanical diagnostician. Analyze the provided image "
-                "of the plant. Identify the species if possible, diagnose any visible "
-                "issues (pests, nutrient deficiencies, watering issues), and provide a "
-                "concise, actionable treatment plan. Format your response in clean, "
-                "readable markdown."
+                "You are an expert botanical diagnostician. The user is describing a plant issue or asking for a diagnosis. "
+                "If they provided an image, analyze it closely. If they only provided text, do your best to diagnose based on their description, "
+                "and politely suggest they upload a photo if you need more visual confirmation. "
+                "Format your response in clean, readable markdown."
             )
             if request.weather_context:
                 sys_msg += f"\n\nTake the user's local weather into account for your diagnosis and advice: {request.weather_context}"
@@ -226,20 +260,18 @@ def orchestrate_chat(request: schemas.ChatRequest, db: Session = Depends(get_db)
                     clean_history.append(msg)
             
             diag_messages.extend(clean_history)
+            user_content = [{"type": "text", "text": request.user_message}]
+            if request.image_base64:
+                user_content.append({
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{request.image_base64}"
+                    }
+                })
+                
             diag_messages.append({
                 "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": request.user_message
-                    },
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{request.image_base64}"
-                        }
-                    }
-                ]
+                "content": user_content
             })
 
             vision_completion = client.chat.completions.create(
@@ -263,7 +295,8 @@ def orchestrate_chat(request: schemas.ChatRequest, db: Session = Depends(get_db)
                     "content": (
                         "You are a helpful botanical assistant. Your job is to extract the name and species "
                         "of a new plant the user wants to add to their garden. Use the conversation history "
-                        "and any provided image context to figure out the best name and species if not explicitly stated."
+                        "and any provided image context to figure out the best name and species if not explicitly stated. "
+                        "If you absolutely cannot determine the species, use 'Unknown Species'."
                     )
                 }
             ]

@@ -56,11 +56,62 @@ export default function AIChatSheet({ isOpen, onClose }) {
   const inputRef = useRef(null);
   const chatEndRef = useRef(null);
   const fileInputRef = useRef(null);
+  const recognitionRef = useRef(null);
+
+  // Initialize Speech Recognition
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+
+      recognitionRef.current.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          transcript += event.results[i][0].transcript;
+        }
+        const prefix = recognitionRef.current._initialText || '';
+        setInputText((prefix ? prefix + ' ' : '') + transcript);
+      };
+      
+      recognitionRef.current.onerror = (event) => {
+        console.error("Speech recognition error", event.error);
+        setIsRecording(false);
+      };
+      
+      recognitionRef.current.onend = () => {
+        setIsRecording(false);
+      };
+    }
+  }, []);
 
   // Auto-scroll to bottom when messages update
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
+
+  /* ----- Voice Handlers ----- */
+  const handleStartRecording = () => {
+    if (!recognitionRef.current) {
+      alert("Voice recognition is not supported in this browser.");
+      return;
+    }
+    recognitionRef.current._initialText = inputText.trim();
+    setIsRecording(true);
+    try {
+      recognitionRef.current.start();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleStopRecording = () => {
+    setIsRecording(false);
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+  };
 
   /* ----- Image Selection Handler ----- */
   const handleImageSelect = (e) => {
@@ -113,7 +164,7 @@ export default function AIChatSheet({ isOpen, onClose }) {
         base64String = null;
       }
     }
-    
+
     // Clear the input preview, but DO NOT revoke the blob URL 
     // since the chat bubble still needs it!
     clearImage(false);
@@ -338,7 +389,7 @@ export default function AIChatSheet({ isOpen, onClose }) {
                 {isRecording ? (
                   <RecordingPill
                     key="recording"
-                    onStop={() => setIsRecording(false)}
+                    onStop={handleStopRecording}
                     isDark={isDark}
                   />
                 ) : (
@@ -347,7 +398,7 @@ export default function AIChatSheet({ isOpen, onClose }) {
                     inputRef={inputRef}
                     inputValue={inputText}
                     setInputValue={setInputText}
-                    onMicPress={() => setIsRecording(true)}
+                    onMicPress={handleStartRecording}
                     onCameraPress={() => fileInputRef.current?.click()}
                     onSend={handleSend}
                     hasImage={!!selectedImage}
@@ -474,7 +525,7 @@ function RecordingPill({ onStop, isDark }) {
           className="text-[14px] font-semibold tabular-nums tracking-tight"
           style={{ color: 'var(--text-primary)' }}
         >
-          0:04
+          Listening
         </span>
       </div>
 
@@ -529,9 +580,10 @@ function UserBubble({ message }) {
           style={{
             backgroundColor: 'var(--accent)',
             borderRadius: '18px 18px 4px 18px',
-            wordBreak: 'normal',
+            wordBreak: 'break-word',
             overflowWrap: 'break-word',
             maxWidth: '85%',
+            overflow: 'hidden',
           }}
         >
           <p className="text-[15px] text-white font-medium leading-relaxed tracking-tight">
@@ -562,8 +614,9 @@ function TextBubble({ message, isDark }) {
           borderRadius: '20px 20px 20px 6px',
           boxShadow: '0 8px 32px rgba(0,0,0,0.06)',
           maxWidth: '90%',
-          wordBreak: 'normal',
+          wordBreak: 'break-word',
           overflowWrap: 'break-word',
+          overflow: 'hidden',
         }}
       >
         <div className={`prose prose-sm max-w-none ${isDark ? 'prose-invert' : ''}`}
@@ -598,7 +651,7 @@ function CareLogBubble({ message, isDark }) {
         }}
       >
         {/* Header Ribbon */}
-        <div 
+        <div
           className="px-5 py-3 flex items-center justify-between"
           style={{ backgroundColor: isDark ? 'rgba(52, 199, 89, 0.15)' : 'rgba(52, 199, 89, 0.1)' }}
         >
@@ -615,8 +668,26 @@ function CareLogBubble({ message, isDark }) {
 
         {/* Segmented Data Tiles */}
         <div className="flex flex-col p-2 gap-1.5">
+          {/* Plant Name */}
+          <div
+            className="flex justify-between items-center px-4 py-3 rounded-xl"
+            style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)' }}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20 text-emerald-500">
+                <Leaf size={14} strokeWidth={2.5} />
+              </div>
+              <span className="text-[13px] font-semibold uppercase tracking-wider text-gray-500">
+                Target
+              </span>
+            </div>
+            <span className="text-[15px] font-bold" style={{ color: 'var(--text-primary)' }}>
+              {data.plant_name || 'Plant'}
+            </span>
+          </div>
+
           {/* Action */}
-          <div 
+          <div
             className="flex justify-between items-center px-4 py-3 rounded-xl"
             style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)' }}
           >
@@ -635,7 +706,7 @@ function CareLogBubble({ message, isDark }) {
 
           {/* Substance */}
           {data.substance_used && (
-            <div 
+            <div
               className="flex justify-between items-center px-4 py-3 rounded-xl"
               style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)' }}
             >
@@ -654,7 +725,7 @@ function CareLogBubble({ message, isDark }) {
           )}
 
           {/* Date */}
-          <div 
+          <div
             className="flex justify-between items-center px-4 py-3 rounded-xl"
             style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)' }}
           >
@@ -686,12 +757,14 @@ function ErrorBubble({ message, isDark }) {
   return (
     <div className="flex w-full justify-start flex-col items-start">
       <div
-        className="px-5 py-4 flex items-start gap-3"
+        className="px-5 py-4 flex items-start gap-3 overflow-hidden"
         style={{
-          backgroundColor: isDark ? 'rgba(255, 69, 58, 0.08)' : 'rgba(255, 69, 58, 0.06)',
-          border: `1px solid ${isDark ? 'rgba(255,69,58,0.2)' : 'rgba(255,69,58,0.15)'}`,
-          borderRadius: '20px 20px 20px 6px',
-          maxWidth: '90%',
+            backgroundColor: isDark ? 'rgba(255, 69, 58, 0.08)' : 'rgba(255, 69, 58, 0.06)',
+            border: `1px solid ${isDark ? 'rgba(255,69,58,0.2)' : 'rgba(255,69,58,0.15)'}`,
+            borderRadius: '20px 20px 20px 6px',
+            maxWidth: '90%',
+            wordBreak: 'break-word',
+            overflowWrap: 'break-word',
         }}
       >
         <AlertCircle size={18} className="text-[#FF453A] shrink-0 mt-0.5" strokeWidth={2.5} />

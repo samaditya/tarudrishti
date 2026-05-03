@@ -97,7 +97,7 @@ export default function PlantProfile({ plant, onBack }) {
 
   const handleDelete = async () => {
     if (!window.confirm(`Are you sure you want to delete ${plant?.name}?`)) return;
-    
+
     setIsDeleting(true);
     try {
       const res = await fetch(`${API_BASE}/api/plants/${plant.id}`, { method: 'DELETE' });
@@ -156,7 +156,7 @@ export default function PlantProfile({ plant, onBack }) {
       style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
     >
       <div className="flex-1 w-full max-w-5xl px-6 sm:px-10 lg:px-16 pt-16 sm:pt-24 pb-32 flex flex-col gap-10 sm:gap-14">
-        
+
         {/* 1. Top Navigation */}
         <nav className="w-full flex items-center justify-between shrink-0">
           <button
@@ -205,7 +205,7 @@ export default function PlantProfile({ plant, onBack }) {
 
         {/* 3. Segmented Control (Tabs) */}
         <div className="w-full flex justify-center pb-4 shrink-0">
-          <div 
+          <div
             className="flex p-1.5 rounded-[16px] w-full max-w-md"
             style={{ backgroundColor: 'var(--fill-tertiary)' }}
           >
@@ -263,7 +263,7 @@ export default function PlantProfile({ plant, onBack }) {
         {!isLoading && !error && (
           <div className="flex-1 relative">
             <AnimatePresence mode="wait">
-              
+
               {/* 3. Dashboard View */}
               {activeTab === 'Dashboard' && (
                 <motion.div
@@ -289,7 +289,7 @@ export default function PlantProfile({ plant, onBack }) {
                           }}
                         >
                           <div className="flex items-center gap-2 mb-3">
-                            <div 
+                            <div
                               className="w-8 h-8 rounded-full flex items-center justify-center"
                               style={{ backgroundColor: `${metric.color}20`, color: metric.color }}
                             >
@@ -299,12 +299,12 @@ export default function PlantProfile({ plant, onBack }) {
                               {metric.title}
                             </span>
                           </div>
-                          
+
                           <div className="mt-auto flex flex-col gap-1">
                             <span className="text-[12px] font-medium text-gray-500">
                               Last: {metric.lastApplied}
                             </span>
-                            <span 
+                            <span
                               className="text-[16px] font-bold tracking-tight"
                               style={{ color: metric.isOverdue ? '#FF453A' : 'var(--text-primary)' }}
                             >
@@ -324,18 +324,18 @@ export default function PlantProfile({ plant, onBack }) {
                     {timeline.length > 0 ? (
                       <div className="flex flex-col gap-8">
                         {timeline.map((log, i) => (
-                          <div 
-                            key={log.id} 
+                          <div
+                            key={log.id}
                             className="flex gap-5 relative pl-2 pb-4"
                           >
                             {/* Timeline Line */}
                             {i !== timeline.length - 1 && (
-                              <div 
+                              <div
                                 className="absolute left-[15px] top-[30px] bottom-[-32px] w-px"
                                 style={{ backgroundColor: 'var(--separator)' }}
                               />
                             )}
-                            <div 
+                            <div
                               className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 z-10"
                               style={{ backgroundColor: 'var(--fill-secondary)' }}
                             >
@@ -377,7 +377,7 @@ export default function PlantProfile({ plant, onBack }) {
                   className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 pb-24"
                 >
                   {[...(plant?.image_url ? [plant.image_url] : []), ...galleryImages].map((imgUrl, i) => (
-                    <motion.div 
+                    <motion.div
                       key={i}
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -385,9 +385,9 @@ export default function PlantProfile({ plant, onBack }) {
                       className="relative rounded-2xl overflow-hidden group aspect-square shadow-sm"
                       style={{ backgroundColor: 'var(--fill-secondary)' }}
                     >
-                      <img 
-                        src={imgUrl} 
-                        alt="Plant Gallery" 
+                      <img
+                        src={imgUrl}
+                        alt="Plant Gallery"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
                         onError={(e) => {

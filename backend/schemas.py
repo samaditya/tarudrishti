@@ -103,13 +103,10 @@ class DeletePlantExtraction(BaseModel):
         description="The name or species of the plant the user wants to delete."
     )
 
-class CareLogExtraction(BaseModel):
-    """
-    Strictly typed Pydantic model for OpenAI structured output extraction (Logger Agent).
-    """
+class SingleCareAction(BaseModel):
     plant_name_or_species: str = Field(
         ..., 
-        description="The name or species of the plant mentioned by the user (e.g., 'Monstera', 'Fiddle Leaf Fig')."
+        description="The name or species of the plant mentioned. If the user implies all their plants, exactly use the string 'ALL_PLANTS'."
     )
     action_type: str = Field(
         ..., 
@@ -122,6 +119,15 @@ class CareLogExtraction(BaseModel):
     action_date: date = Field(
         ..., 
         description="The date the action occurred. Deduce this based on the provided current date and user input (e.g., 'yesterday', 'today')."
+    )
+
+class CareLogExtraction(BaseModel):
+    """
+    Strictly typed Pydantic model for OpenAI structured output extraction (Logger Agent).
+    """
+    actions: list[SingleCareAction] = Field(
+        ...,
+        description="A list of care actions extracted from the user's input."
     )
 
 class ChatRequest(BaseModel):

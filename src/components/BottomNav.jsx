@@ -2,8 +2,7 @@ import { motion } from 'framer-motion';
 import { Leaf, CalendarDays, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 
-export default function BottomNav({ onFabClick }) {
-  const [activeTab, setActiveTab] = useState('gallery');
+export default function BottomNav({ activeTab, onTabChange, onFabClick }) {
 
   return (
     <nav
@@ -27,7 +26,7 @@ export default function BottomNav({ onFabClick }) {
           label="Gallery"
           Icon={Leaf}
           isActive={activeTab === 'gallery'}
-          onClick={() => setActiveTab('gallery')}
+          onClick={() => onTabChange('gallery')}
         />
 
         {/* Center — FAB */}
@@ -59,7 +58,7 @@ export default function BottomNav({ onFabClick }) {
           label="Schedule"
           Icon={CalendarDays}
           isActive={activeTab === 'schedule'}
-          onClick={() => setActiveTab('schedule')}
+          onClick={() => onTabChange('schedule')}
         />
       </div>
     </nav>

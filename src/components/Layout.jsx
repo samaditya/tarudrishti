@@ -4,7 +4,7 @@ import { Sun, Moon, LogOut } from 'lucide-react';
 import BottomNav from './BottomNav';
 import Logo from './Logo';
 
-export default function Layout({ children, onFabClick, user, onLogout }) {
+export default function Layout({ children, activeTab, onTabChange, onFabClick, user, onLogout }) {
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -107,7 +107,7 @@ export default function Layout({ children, onFabClick, user, onLogout }) {
       </main>
 
       {/* ===== Bottom Navigation ===== */}
-      <BottomNav onFabClick={onFabClick} />
+      <BottomNav activeTab={activeTab} onTabChange={onTabChange} onFabClick={onFabClick} />
     </div>
   );
 }
