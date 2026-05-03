@@ -11,11 +11,11 @@ It goes beyond a simple chatbot by using a **multi-agent orchestration system** 
 ## 📸 Preview
 
 
--Home Page <img width="2930" height="1596" alt="image" src="https://github.com/user-attachments/assets/2af81afc-f272-40ce-8d3c-76d82b9480dd" />
+- Home Page <img width="2930" height="1596" alt="image" src="https://github.com/user-attachments/assets/2af81afc-f272-40ce-8d3c-76d82b9480dd" />
 
 - Dashboard View <img width="2930" height="1596" alt="image" src="https://github.com/user-attachments/assets/a1a0460f-e17c-4eef-8945-88a4b1c67853" />
 
-My Garden view- <img width="2930" height="1596" alt="image" src="https://github.com/user-attachments/assets/8dbeca89-eb3a-4468-90d7-640b5f296951" />
+- My Garden view <img width="2930" height="1596" alt="image" src="https://github.com/user-attachments/assets/8dbeca89-eb3a-4468-90d7-640b5f296951" />
 
 - Plant Gallery  <img width="2930" height="1596" alt="image" src="https://github.com/user-attachments/assets/dea53fc3-60e9-42c1-9a78-49a9dbe1ca69" />
 
