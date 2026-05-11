@@ -374,7 +374,7 @@ export default function AIChatSheet({ isOpen, onClose }) {
               )}
 
               <div ref={chatEndRef} />
-            </div>
+            </motion.div>
 
             {/* ===== Image Preview Chip ===== */}
             {selectedImage && (
