@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Search, WifiOff, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, WifiOff, Loader2, Plus } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import PlantCard from './PlantCard';
 import WeatherWidget from './WeatherWidget';
 import ErrorBoundary from './ErrorBoundary';
 import AddPlantModal from './AddPlantModal';
 import { apiFetch } from '../utils/api';
+import { springConfig } from '../utils/animations';
 
 export default function PlantGallery({ onSelectPlant }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -30,20 +31,20 @@ export default function PlantGallery({ onSelectPlant }) {
     <section className="w-full flex flex-col" id="plant-gallery">
       {/* Section Header & Search Bar */}
       <motion.div
-        initial={{ opacity: 0, y: 12 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-        className="mb-6 sm:mb-8 flex flex-col items-center justify-center gap-5 text-center relative"
+        transition={springConfig}
+        className="mb-8 flex flex-col items-center justify-center gap-5 text-center relative"
       >
         <div>
           <h2
-            className="text-[28px] sm:text-[32px] lg:text-[36px] font-bold tracking-[-0.03em] leading-tight"
+            className="text-[32px] sm:text-[36px] lg:text-[40px] font-bold tracking-tight leading-tight"
             style={{ color: 'var(--text-primary)' }}
           >
             My Garden
           </h2>
           <p
-            className="text-[13px] sm:text-[14px] font-normal mt-0.5 tracking-tight"
+            className="text-[14px] sm:text-[15px] font-semibold mt-1 tracking-tight uppercase opacity-50"
             style={{ color: 'var(--text-secondary)' }}
           >
             {plants.length} plant{plants.length !== 1 ? 's' : ''} · {isLoading ? 'Syncing...' : 'All healthy'}
@@ -52,36 +53,44 @@ export default function PlantGallery({ onSelectPlant }) {
       </motion.div>
 
       {/* Action Bar: Search & Weather */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center w-full mb-8 sm:mb-10 relative z-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center w-full mb-10 relative z-10">
         <div className="hidden lg:block" /> {/* Left Spacer for centering Search */}
         
         <div className="flex justify-center w-full relative group">
           {/* Premium Search Bar */}
-          <div className="relative w-full max-w-md">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ ...springConfig, delay: 0.1 }}
+            className="relative w-full max-w-md shadow-sm"
+          >
             <div className="absolute inset-y-0 left-2 pl-4 flex items-center pointer-events-none">
               <Search size={18} style={{ color: 'var(--text-tertiary)' }} strokeWidth={2.5} />
             </div>
             <input
               type="text"
+              placeholder="Search your garden..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-[46px] pl-[48px] pr-4 rounded-xl outline-none transition-all duration-200 
+              className="w-full h-[52px] pl-[52px] pr-5 rounded-2xl outline-none transition-all duration-300 
                          bg-[var(--fill-secondary)] border border-[var(--separator)] 
-                         text-[var(--text-primary)] text-[15px] font-medium placeholder-[var(--text-tertiary)]
-                         focus:bg-[var(--fill-tertiary)] focus:border-[var(--accent)] 
+                         text-[var(--text-primary)] text-[16px] font-semibold placeholder-[var(--text-tertiary)]
+                         focus:bg-[var(--bg-elevated)] focus:border-[var(--accent)] 
                          focus:ring-4 focus:ring-[var(--accent-dimmed)]"
             />
-          </div>
+          </motion.div>
         </div>
 
         <div className="flex flex-col sm:flex-row justify-center lg:justify-end items-center gap-4 w-full">
-           <button
+           <motion.button
+             whileHover={{ scale: 1.05 }}
+             whileTap={{ scale: 0.95 }}
              onClick={() => setIsAddModalOpen(true)}
-             className="w-full sm:w-auto h-[46px] px-5 rounded-xl font-semibold text-[14px] flex items-center justify-center gap-2 cursor-pointer transition-opacity hover:opacity-90 shadow-sm"
+             className="w-full sm:w-auto h-[52px] px-6 rounded-2xl font-bold text-[15px] flex items-center justify-center gap-2.5 cursor-pointer transition-all shadow-md active:shadow-sm"
              style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)' }}
            >
-             <span className="text-xl leading-none">+</span> Add Plant
-           </button>
+             <Plus size={20} strokeWidth={3} /> Add Plant
+           </motion.button>
            <ErrorBoundary componentName="WeatherWidget">
              <WeatherWidget />
            </ErrorBoundary>

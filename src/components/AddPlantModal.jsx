@@ -144,49 +144,57 @@ export default function AddPlantModal({ isOpen, onClose }) {
             initial={{ y: '100%', opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: '100%', opacity: 0 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90dvh]"
+            transition={springConfig}
+            className="relative w-full max-w-lg rounded-t-[32px] sm:rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90dvh]"
             style={{ backgroundColor: 'var(--bg-elevated)', border: '1px solid var(--separator)' }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b" style={{ borderColor: 'var(--separator)' }}>
-              <h2 className="text-[20px] font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+            <div className="flex items-center justify-between px-6 py-5 border-b" style={{ borderColor: 'var(--separator)' }}>
+              <h2 className="text-[22px] font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
                 Add New Plant
               </h2>
-              <button
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={handleClose}
-                className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--fill-secondary)]"
+                className="w-10 h-10 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--fill-secondary)] border border-transparent hover:border-[var(--separator)]"
               >
-                <X size={20} style={{ color: 'var(--text-secondary)' }} />
-              </button>
+                <X size={22} style={{ color: 'var(--text-secondary)' }} />
+              </motion.button>
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-8">
               {/* Image Upload Area */}
-              <div 
+              <motion.div 
+                whileHover={{ scale: 0.99 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full aspect-[4/3] rounded-2xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer overflow-hidden relative group transition-colors"
+                className="w-full aspect-[4/3] rounded-[24px] border-2 border-dashed flex flex-col items-center justify-center cursor-pointer overflow-hidden relative group transition-all"
                 style={{ 
                   borderColor: imagePreview ? 'transparent' : 'var(--separator)',
-                  backgroundColor: imagePreview ? 'black' : 'var(--fill-secondary)'
+                  backgroundColor: imagePreview ? 'black' : 'var(--fill-secondary)',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
                 }}
               >
                 {imagePreview ? (
                   <>
-                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover opacity-90 group-hover:opacity-70 transition-opacity" />
+                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover opacity-90 group-hover:opacity-75 transition-opacity" />
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="bg-black/50 backdrop-blur-md px-4 py-2 rounded-full flex items-center gap-2 text-white font-medium text-[14px]">
-                        <Camera size={16} /> Retake Photo
+                      <div className="bg-black/60 backdrop-blur-xl px-5 py-2.5 rounded-full flex items-center gap-2.5 text-white font-bold text-[14px] border border-white/10">
+                        <Camera size={18} /> Retake Photo
                       </div>
                     </div>
                   </>
                 ) : (
-                  <div className="flex flex-col items-center gap-3 text-[var(--text-secondary)]">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[var(--fill-tertiary)]">
-                      <Camera size={24} />
+                  <div className="flex flex-col items-center gap-4 text-[var(--text-secondary)]">
+                    <div className="w-14 h-14 rounded-full flex items-center justify-center bg-[var(--fill-tertiary)] border border-[var(--separator)]">
+                      <Camera size={28} />
                     </div>
-                    <span className="text-[15px] font-medium">Tap to snap or upload</span>
+                    <div className="text-center">
+                      <span className="block text-[16px] font-bold text-[var(--text-primary)]">Snap a Photo</span>
+                      <span className="text-[13px] font-medium opacity-60">AI will identify the species</span>
+                    </div>
                   </div>
                 )}
                 <input
@@ -197,27 +205,27 @@ export default function AddPlantModal({ isOpen, onClose }) {
                   onChange={handleImageCapture}
                   className="hidden"
                 />
-              </div>
+              </motion.div>
 
               {/* Analysis Status */}
               <AnimatePresence>
                 {isAnalyzing && (
                   <motion.div 
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="flex items-center justify-center gap-3 text-[var(--accent)] font-medium text-[14px]"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="flex items-center justify-center gap-3 text-[var(--accent)] font-bold text-[14px] py-1"
                   >
-                    <Loader2 size={16} className="animate-spin" />
-                    Analyzing plant species...
+                    <Loader2 size={18} className="animate-spin" />
+                    Consulting Botanical Database...
                   </motion.div>
                 )}
               </AnimatePresence>
 
               {/* Form */}
-              <form onSubmit={handleSave} className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[13px] font-semibold tracking-wide text-[var(--text-secondary)] uppercase">
+              <form onSubmit={handleSave} className="flex flex-col gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-[12px] font-bold tracking-[0.05em] text-[var(--text-secondary)] uppercase pl-1">
                     Common Name
                   </label>
                   <input
@@ -226,7 +234,7 @@ export default function AddPlantModal({ isOpen, onClose }) {
                     value={plantDetails.name}
                     onChange={(e) => setPlantDetails({ ...plantDetails, name: e.target.value })}
                     placeholder="e.g. Monstera Deliciosa"
-                    className="w-full px-4 py-3.5 rounded-xl border outline-none font-medium text-[15px] transition-colors"
+                    className="w-full px-5 py-4 rounded-2xl border outline-none font-semibold text-[16px] transition-all focus:ring-2 focus:ring-[var(--accent)]/20"
                     style={{
                       backgroundColor: 'var(--fill-secondary)',
                       borderColor: 'var(--separator)',
@@ -235,8 +243,8 @@ export default function AddPlantModal({ isOpen, onClose }) {
                   />
                 </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[13px] font-semibold tracking-wide text-[var(--text-secondary)] uppercase">
+                <div className="flex flex-col gap-2">
+                  <label className="text-[12px] font-bold tracking-[0.05em] text-[var(--text-secondary)] uppercase pl-1">
                     Scientific Species
                   </label>
                   <input
@@ -245,7 +253,7 @@ export default function AddPlantModal({ isOpen, onClose }) {
                     value={plantDetails.species}
                     onChange={(e) => setPlantDetails({ ...plantDetails, species: e.target.value })}
                     placeholder="e.g. Epipremnum aureum"
-                    className="w-full px-4 py-3.5 rounded-xl border outline-none font-medium text-[15px] transition-colors"
+                    className="w-full px-5 py-4 rounded-2xl border outline-none font-semibold text-[16px] transition-all focus:ring-2 focus:ring-[var(--accent)]/20"
                     style={{
                       backgroundColor: 'var(--fill-secondary)',
                       borderColor: 'var(--separator)',
@@ -255,20 +263,22 @@ export default function AddPlantModal({ isOpen, onClose }) {
                 </div>
 
                 {/* Submit Button */}
-                <button
+                <motion.button
                   type="submit"
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.98 }}
                   disabled={saveMutation.isPending || isAnalyzing}
-                  className="w-full mt-4 py-4 rounded-xl font-bold text-[16px] text-white flex items-center justify-center gap-2 cursor-pointer transition-opacity disabled:opacity-50"
+                  className="w-full mt-4 py-4.5 rounded-2xl font-bold text-[17px] text-white flex items-center justify-center gap-2.5 cursor-pointer transition-all disabled:opacity-50 shadow-lg shadow-[var(--accent)]/20"
                   style={{ backgroundColor: 'var(--accent)' }}
                 >
                   {saveMutation.isPending ? (
-                    <Loader2 size={20} className="animate-spin" />
+                    <Loader2 size={22} className="animate-spin" />
                   ) : (
                     <>
-                      <Leaf size={18} /> Add to Garden
+                      <Leaf size={20} /> Add to Garden
                     </>
                   )}
-                </button>
+                </motion.button>
               </form>
             </div>
           </motion.div>

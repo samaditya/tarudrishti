@@ -294,29 +294,33 @@ export default function AIChatSheet({ isOpen, onClose }) {
 
             {/* Header */}
             <div
-              className="flex items-center justify-between px-6 py-3 shrink-0"
-              style={{ borderBottom: `0.5px solid var(--separator)` }}
+              className="flex items-center justify-between px-6 py-4 shrink-0"
+              style={{ borderBottom: `1px solid var(--separator)` }}
             >
               <h3
-                className="text-[18px] font-semibold tracking-tight"
+                className="text-[20px] font-bold tracking-tight"
                 style={{ color: 'var(--text-primary)' }}
               >
                 Botanical AI
               </h3>
               <motion.button
-                whileTap={{ scale: 0.82 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={onClose}
-                className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors hover:bg-black/5 dark:hover:bg-white/5"
-                style={{ backgroundColor: 'var(--fill-tertiary)' }}
+                className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                style={{ backgroundColor: 'var(--fill-tertiary)', border: '1px solid var(--separator)' }}
                 aria-label="Close"
                 id="close-chat-sheet"
               >
-                <X size={15} strokeWidth={2.5} style={{ color: 'var(--text-secondary)' }} />
+                <X size={18} strokeWidth={2.5} style={{ color: 'var(--text-secondary)' }} />
               </motion.button>
             </div>
 
-            {/* Chat Timeline */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden px-5 pt-6 pb-12 flex flex-col space-y-6">
+            {/* Chat Timeline — Layout Prop for Smooth Reflow */}
+            <motion.div 
+              layout
+              className="flex-1 overflow-y-auto overflow-x-hidden px-5 pt-8 pb-12 flex flex-col space-y-8"
+            >
               {messages.length === 0 && !isTyping && (
                 <div className="flex-1 flex flex-col items-center justify-center text-center py-16 opacity-60">
                   <Leaf size={32} className="mb-4" style={{ color: 'var(--accent)' }} />
@@ -332,9 +336,10 @@ export default function AIChatSheet({ isOpen, onClose }) {
               {messages.map((msg, i) => (
                 <motion.div
                   key={msg.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  layout
+                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   className="w-full"
                 >
                   {msg.sender === 'user' ? (
@@ -654,19 +659,19 @@ function TextBubble({ message, isDark }) {
 
   return (
     <div className="flex w-full justify-start flex-col items-start">
-      <div
-        className="px-5 py-4 backdrop-blur-md"
-        style={{
-          backgroundColor: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.02)',
-          border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}`,
-          borderRadius: '20px 20px 20px 6px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.06)',
-          maxWidth: '90%',
-          wordBreak: 'break-word',
-          overflowWrap: 'break-word',
-          overflow: 'hidden',
-        }}
-      >
+        <div
+          className="px-5 py-4 backdrop-blur-xl"
+          style={{
+            backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+            border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`,
+            borderRadius: '24px 24px 24px 8px',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
+            maxWidth: '90%',
+            wordBreak: 'break-word',
+            overflowWrap: 'break-word',
+            overflow: 'hidden',
+          }}
+        >
         <div className={`prose prose-sm max-w-none ${isDark ? 'prose-invert' : ''}`}
           style={{ '--tw-prose-body': 'var(--text-primary)', '--tw-prose-headings': 'var(--text-primary)' }}
         >
@@ -694,12 +699,12 @@ function CareLogBubble({ message, isDark }) {
   return (
     <div className="flex w-full justify-start flex-col items-start">
       <div
-        className="w-full sm:w-[90%] overflow-hidden backdrop-blur-md"
+        className="w-full sm:w-[90%] overflow-hidden backdrop-blur-xl"
         style={{
-          backgroundColor: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.02)',
-          border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
-          borderRadius: '20px 20px 20px 6px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.06)',
+          backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+          border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}`,
+          borderRadius: '24px 24px 24px 8px',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
         }}
       >
         {/* Header Ribbon */}
