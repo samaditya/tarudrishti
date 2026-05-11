@@ -1,6 +1,6 @@
 import os
 from typing import Generator
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
 
@@ -18,6 +18,11 @@ engine = create_engine(
     pool_pre_ping=True,
     pool_recycle=300
 )
+
+# Create pgvector extension
+with engine.connect() as conn:
+    conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
+    conn.commit()
 
 # Create a configured "Session" class
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

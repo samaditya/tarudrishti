@@ -5,33 +5,16 @@ import AIChatSheet from './components/AIChatSheet';
 import LandingPage from './components/LandingPage';
 import PlantProfile from './components/PlantProfile';
 import ScheduleView from './components/ScheduleView';
+import { useAuth } from './context/AuthContext';
 
 export default function App() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('gallery');
-  const [user, setUser] = useState(() => {
-    try {
-      const saved = localStorage.getItem('tarudrishti_user');
-      return saved ? JSON.parse(saved) : null;
-    } catch {
-      return null;
-    }
-  });
+  const { user, logout } = useAuth();
   const [selectedPlant, setSelectedPlant] = useState(null);
 
-  const handleLogin = (userData) => {
-    const data = userData || { name: 'Guest' };
-    localStorage.setItem('tarudrishti_user', JSON.stringify(data));
-    setUser(data);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('tarudrishti_user');
-    setUser(null);
-  };
-
   if (!user) {
-    return <LandingPage onLogin={handleLogin} />;
+    return <LandingPage />;
   }
 
   if (selectedPlant) {
@@ -39,7 +22,7 @@ export default function App() {
   }
 
   return (
-    <Layout activeTab={activeTab} onTabChange={setActiveTab} onFabClick={() => setIsChatOpen(true)} user={user} onLogout={handleLogout}>
+    <Layout activeTab={activeTab} onTabChange={setActiveTab} onFabClick={() => setIsChatOpen(true)} user={user} onLogout={logout}>
       {activeTab === 'gallery' ? (
         <PlantGallery onSelectPlant={setSelectedPlant} />
       ) : (

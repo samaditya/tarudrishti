@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, Droplets, Leaf, ShieldAlert, CheckCircle2, WifiOff, Loader2, Trash2 } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTheme } from '../context/ThemeContext';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { apiFetch } from '../utils/api';
 
 /* ===========================================================================
    Care Metric Configuration
@@ -74,62 +74,46 @@ const healthColors = {
 };
 
 /* ===========================================================================
-   Gallery Placeholder Images
-   =========================================================================== */
-const galleryImages = [
-  'https://images.unsplash.com/photo-1614594975525-e45190c55d40?auto=format&fit=crop&q=80&w=800',
-  'https://images.unsplash.com/photo-1545241047-6083a36a0d24?auto=format&fit=crop&q=80&w=800',
-  'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&q=80&w=800',
-  'https://images.unsplash.com/photo-1646667687331-e06974a7fda0?auto=format&fit=crop&q=80&w=800',
-];
-
-/* ===========================================================================
    MAIN COMPONENT
    =========================================================================== */
 export default function PlantProfile({ plant, onBack }) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('Dashboard');
-  const [profileData, setProfileData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [error, setError] = useState(null);
 
-  const handleDelete = async () => {
-    if (!window.confirm(`Are you sure you want to delete ${plant?.name}?`)) return;
+  const { data: profileData, isLoading, error } = useQuery({
+    queryKey: ['plant', plant?.id],
+    queryFn: async () => {
+      const res = await apiFetch(`/api/plants/${plant.id}`);
+      if (!res.ok) throw new Error(`Server responded ${res.status}`);
+      return res.json();
+    },
+    enabled: !!plant?.id
+  });
 
-    setIsDeleting(true);
-    try {
-      const res = await fetch(`${API_BASE}/api/plants/${plant.id}`, { method: 'DELETE' });
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiFetch(`/api/plants/${plant.id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete plant');
-      onBack(); // Go back to gallery, which will re-fetch
-    } catch (err) {
-      console.error(err);
-      alert('Could not delete plant.');
-      setIsDeleting(false);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['plants'] });
+      onBack();
+    },
+    onError: (err) => {
+      alert('Could not delete plant: ' + err.message);
+    }
+  });
+
+  const isDeleting = deleteMutation.isPending;
+
+  const handleDelete = () => {
+    if (window.confirm(`Are you sure you want to delete ${plant?.name}?`)) {
+      deleteMutation.mutate();
     }
   };
-
-  useEffect(() => {
-    if (!plant?.id) return;
-
-    const fetchProfile = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const res = await fetch(`${API_BASE}/api/plants/${plant.id}`);
-        if (!res.ok) throw new Error(`Server responded ${res.status}`);
-        const data = await res.json();
-        setProfileData(data);
-      } catch (err) {
-        console.error('Failed to fetch plant profile:', err);
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchProfile();
-  }, [plant?.id]);
 
   const healthStatus = profileData?.health_status || plant?.health || 'Healthy';
   const healthColor = healthColors[healthStatus] || '#34C759';
@@ -374,30 +358,36 @@ export default function PlantProfile({ plant, onBack }) {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.3 }}
-                  className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 pb-24"
+                  className="pb-24"
                 >
-                  {[...(plant?.image_url ? [plant.image_url] : []), ...galleryImages].map((imgUrl, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: i * 0.1, duration: 0.4 }}
-                      className="relative rounded-2xl overflow-hidden group aspect-square shadow-sm"
-                      style={{ backgroundColor: 'var(--fill-secondary)' }}
-                    >
-                      <img
-                        src={imgUrl}
-                        alt="Plant Gallery"
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        loading="lazy"
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src = 'https://images.unsplash.com/photo-1545241047-6083a36a0d24?auto=format&fit=crop&q=80&w=800';
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    </motion.div>
-                  ))}
+                  {(profileData?.image_url || plant?.image_url) ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.4 }}
+                        className="relative rounded-2xl overflow-hidden group aspect-square shadow-sm"
+                        style={{ backgroundColor: 'var(--fill-secondary)' }}
+                      >
+                        <img
+                          src={profileData?.image_url || plant?.image_url}
+                          alt={plantName}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </motion.div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-20 text-center">
+                      <div className="text-[48px] mb-4">📷</div>
+                      <h3 className="text-[17px] font-bold tracking-tight mb-1" style={{ color: 'var(--text-primary)' }}>
+                        No photos yet
+                      </h3>
+                      <p className="text-[14px] font-normal" style={{ color: 'var(--text-secondary)' }}>
+                        Photos will appear here when you add them via the AI assistant.
+                      </p>
+                    </div>
+                  )}
                 </motion.div>
               )}
 

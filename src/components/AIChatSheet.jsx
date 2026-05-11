@@ -2,6 +2,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Mic, Camera, ArrowUp, Square, CheckCircle2, Leaf, AlertCircle, ImageIcon } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
+import { useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -45,6 +47,7 @@ async function compressAndEncodeImage(file) {
    =========================================================================== */
 export default function AIChatSheet({ isOpen, onClose }) {
   const { theme } = useTheme();
+  const queryClient = useQueryClient();
   const isDark = theme === 'dark';
 
   const [messages, setMessages] = useState([]);
@@ -198,9 +201,14 @@ export default function AIChatSheet({ isOpen, onClose }) {
 
     try {
       const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const userStr = localStorage.getItem('tarudrishti_user');
+      const userToken = userStr ? JSON.parse(userStr)?.token : null;
       const res = await fetch(`${API_BASE}/api/chat/orchestrator`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${userToken || ''}`
+        },
         body: JSON.stringify(payload),
       });
 
@@ -217,8 +225,16 @@ export default function AIChatSheet({ isOpen, onClose }) {
         type: data.intent || 'GENERAL_CHAT',
         content: data,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isStreaming: true, // Mark as new for typewriter
       };
       setMessages((prev) => [...prev, aiMsg]);
+
+      // If AI logged care, refresh the data and show a toast
+      if (data.intent === 'LOG_CARE') {
+        queryClient.invalidateQueries({ queryKey: ['plants'] });
+        toast.success(data.message || 'Activity logged successfully! 🌿');
+        if (window.navigator.vibrate) window.navigator.vibrate(50);
+      }
     } catch (err) {
       // Error bubble
       const errMsg = {
@@ -599,10 +615,42 @@ function UserBubble({ message }) {
 }
 
 /* ===========================================================================
+   Typewriter Effect Component
+   =========================================================================== */
+function Typewriter({ text, speed = 15, onComplete }) {
+  const [displayedText, setDisplayedText] = useState('');
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (index < text.length) {
+      const timeout = setTimeout(() => {
+        setDisplayedText((prev) => prev + text[index]);
+        setIndex((prev) => prev + 1);
+      }, speed);
+      return () => clearTimeout(timeout);
+    } else if (onComplete) {
+      onComplete();
+    }
+  }, [index, text, speed, onComplete]);
+
+  return (
+    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+      {displayedText}
+    </ReactMarkdown>
+  );
+}
+
+/* ===========================================================================
    AI Text Bubble (General Chat / Diagnosis)
    =========================================================================== */
 function TextBubble({ message, isDark }) {
   const text = message.content?.message || '';
+  const [isDone, setIsDone] = useState(false);
+
+  // We only want to type out the NEWEST message. 
+  // If the message is older (has an ID less than the current max), show it fully.
+  // This prevents all history re-typing on every re-render.
+  const isNew = message.isStreaming || false; 
 
   return (
     <div className="flex w-full justify-start flex-col items-start">
@@ -622,7 +670,11 @@ function TextBubble({ message, isDark }) {
         <div className={`prose prose-sm max-w-none ${isDark ? 'prose-invert' : ''}`}
           style={{ '--tw-prose-body': 'var(--text-primary)', '--tw-prose-headings': 'var(--text-primary)' }}
         >
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
+          {isNew && !isDone ? (
+            <Typewriter text={text} onComplete={() => setIsDone(true)} />
+          ) : (
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
+          )}
         </div>
       </div>
       <p className="text-xs text-gray-500 mt-1.5 font-medium pl-1">

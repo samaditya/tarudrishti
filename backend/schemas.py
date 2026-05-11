@@ -4,6 +4,17 @@ from typing import Optional
 from enum import Enum
 
 # =============================================================================
+# Auth Schemas
+# =============================================================================
+class UserCreate(BaseModel):
+    email: str
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+# =============================================================================
 # Plant Schemas
 # =============================================================================
 class PlantBase(BaseModel):
@@ -19,6 +30,14 @@ class PlantCreate(PlantBase):
     Schema used for validating data when creating a new Plant.
     """
     pass
+
+class ImageAnalyzeRequest(BaseModel):
+    image_base64: str = Field(..., description="Raw base64-encoded string of the plant image.")
+
+class ImageAnalyzeResponse(BaseModel):
+    name: str = Field(..., description="Suggested common name for the plant.")
+    species: str = Field(..., description="Scientific or specific species name.")
+    health_status: str = Field("Healthy", description="Brief assessment of the plant's health based on the image.")
 
 class PlantResponse(PlantBase):
     """

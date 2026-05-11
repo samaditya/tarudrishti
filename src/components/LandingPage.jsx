@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sun, Moon, Loader2 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
-import { useGoogleLogin } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google';
 import Logo from './Logo';
 import { jwtDecode } from 'jwt-decode';
 
@@ -102,65 +102,81 @@ const GoogleIcon = () => (
   </svg>
 );
 
+import { useAuth } from '../context/AuthContext';
+
 /* ===========================================================================
    MAIN LANDING PAGE COMPONENT
    =========================================================================== */
-export default function LandingPage({ onLogin }) {
+export default function LandingPage() {
   const { theme, toggleTheme } = useTheme();
+  const { login } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authError, setAuthError] = useState('');
 
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-        });
-        const userInfo = await res.json();
-        onLogin({ email: userInfo.email, name: userInfo.name });
-      } catch (err) {
-        setAuthError('Google sign in failed.');
-        console.error('Google UserInfo Fetch Error:', err);
-      }
-    },
-    onError: () => {
-      setAuthError('Google sign in failed.');
-    }
-  });
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const decoded = jwtDecode(credentialResponse.credential);
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-  const handleAuth = (e) => {
+      // Exchange Google email for a backend JWT token
+      const authRes = await fetch(`${API_BASE}/api/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: decoded.email })
+      });
+
+      if (!authRes.ok) throw new Error('Failed to create session with backend');
+      const authData = await authRes.json();
+
+      login({ email: decoded.email, name: decoded.name, token: authData.access_token });
+    } catch (err) {
+      setAuthError('Google sign in failed.');
+      console.error('Google Credential Error:', err);
+    }
+  };
+
+  const handleAuth = async (e) => {
     e.preventDefault();
     setAuthError('');
     setIsSubmitting(true);
 
     const email = e.target['auth-email'].value;
     const password = e.target['auth-password'].value;
-    const name = !isLogin ? e.target['signup-name']?.value : null;
+    
+    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-    setTimeout(() => {
-      setIsSubmitting(false);
-
+    try {
       if (!isLogin) {
-        // Mock Signup
-        const users = JSON.parse(localStorage.getItem('mock_users') || '{}');
-        if (users[email]) {
-          setAuthError('An account with this email already exists.');
-          return;
-        }
-        users[email] = { password, name };
-        localStorage.setItem('mock_users', JSON.stringify(users));
-        onLogin({ email, name: name || email.split('@')[0] });
+        // Actual Signup
+        const res = await fetch(`${API_BASE}/api/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Signup failed');
+        login({ email, token: data.access_token });
       } else {
-        // Mock Login
-        const users = JSON.parse(localStorage.getItem('mock_users') || '{}');
-        if (!users[email] || users[email].password !== password) {
-          setAuthError('Invalid email or password.');
-          return;
-        }
-        onLogin({ email, name: users[email].name || email.split('@')[0] });
+        // Actual Login using OAuth2 form data
+        const formData = new URLSearchParams();
+        formData.append('username', email);
+        formData.append('password', password);
+        
+        const res = await fetch(`${API_BASE}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: formData.toString(),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Invalid email or password');
+        login({ email, token: data.access_token });
       }
-    }, 1200);
+    } catch (err) {
+      setAuthError(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -414,22 +430,16 @@ export default function LandingPage({ onLogin }) {
               </div>
 
               {/* Social Auth Buttons */}
-              <div className="flex gap-3 sm:gap-4">
-                <motion.button
-                  type="button"
-                  whileTap={{ scale: 0.96 }}
-                  onClick={() => googleLogin()}
-                  className="w-full h-[50px] sm:h-[56px] rounded-[14px] sm:rounded-2xl flex items-center justify-center gap-2 sm:gap-3 cursor-pointer hover:bg-[var(--fill-tertiary)] theme-transition"
-                  style={{
-                    backgroundColor: 'var(--bg-surface)',
-                    border: 'none',
-                    color: 'var(--text-primary)',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                  }}
-                >
-                  <GoogleIcon />
-                  <span className="text-[14px] sm:text-[15px] font-semibold tracking-tight">Continue with Google</span>
-                </motion.button>
+              <div className="flex justify-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => setAuthError('Google sign in failed.')}
+                  theme="outline"
+                  size="large"
+                  width="360"
+                  text="continue_with"
+                  shape="pill"
+                />
               </div>
             </div>
           </motion.div>

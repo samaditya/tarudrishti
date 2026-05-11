@@ -11,10 +11,12 @@ import models
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def send_email(subject, html_content):
+def send_email(subject, html_content, receiver_email):
     sender_email = os.getenv("SMTP_EMAIL")
     sender_password = os.getenv("SMTP_PASSWORD")
-    receiver_email = os.getenv("NOTIFICATION_EMAIL")
+    # If no receiver_email provided, fallback to NOTIFICATION_EMAIL
+    if not receiver_email:
+        receiver_email = os.getenv("NOTIFICATION_EMAIL")
 
     # If credentials are not set, mock the email to the console
     if not sender_email or not sender_password or not receiver_email:
@@ -53,9 +55,14 @@ def check_and_send_daily_notifications():
         now = datetime.now()
         today_date = now.date()
 
-        tasks_due_today = []
+        # Group tasks by user_email
+        tasks_by_user = {}
 
         for plant in plants:
+            user_email = plant.owner.email if plant.owner else "guest@example.com"
+            if user_email not in tasks_by_user:
+                tasks_by_user[user_email] = []
+
             logs = plant.care_logs
             
             # Check Watering (Interval: 7 days)
@@ -66,9 +73,9 @@ def check_and_send_daily_notifications():
             if last_water:
                 next_water = last_water + timedelta(days=7)
                 if next_water <= today_date:
-                    tasks_due_today.append(f"💧 <b>Water</b> {plant.name} ({plant.species})")
+                    tasks_by_user[user_email].append(f"💧 <b>Water</b> {plant.name} ({plant.species})")
             else:
-                tasks_due_today.append(f"💧 <b>Water</b> {plant.name} (No previous log)")
+                tasks_by_user[user_email].append(f"💧 <b>Water</b> {plant.name} (No previous log)")
 
             # Check Fertilizing/Substance (Interval: 30 days)
             fert_logs = [log for log in logs if 'fertilize' in log.action_type.lower() or log.substance_used]
@@ -79,13 +86,17 @@ def check_and_send_daily_notifications():
             if last_fert:
                 next_fert = last_fert + timedelta(days=30)
                 if next_fert <= today_date:
-                    tasks_due_today.append(f"🌿 <b>{last_substance}</b> {plant.name} ({plant.species})")
+                    tasks_by_user[user_email].append(f"🌿 <b>{last_substance}</b> {plant.name} ({plant.species})")
             else:
-                 tasks_due_today.append(f"🌿 <b>Fertilize</b> {plant.name} (No previous log)")
+                 tasks_by_user[user_email].append(f"🌿 <b>Fertilize</b> {plant.name} (No previous log)")
 
-        if tasks_due_today:
+        emails_sent = 0
+        for user_email, tasks in tasks_by_user.items():
+            if not tasks:
+                continue
+            
             # Send Email
-            subject = f"🌱 Tarudrishti: {len(tasks_due_today)} Tasks Due Today"
+            subject = f"🌱 Tarudrishti: {len(tasks)} Tasks Due Today"
             
             html_content = f"""
             <html>
@@ -95,7 +106,7 @@ def check_and_send_daily_notifications():
                         <p style="font-size: 16px;">Good morning! Here are the care tasks due for your plants today:</p>
                         
                         <ul style="list-style-type: none; padding-left: 0; margin-top: 20px;">
-                            {"".join(f'<li style="padding: 12px 16px; background: white; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); font-size: 15px;">{task}</li>' for task in tasks_due_today)}
+                            {"".join(f'<li style="padding: 12px 16px; background: white; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); font-size: 15px;">{task}</li>' for task in tasks)}
                         </ul>
                         
                         <p style="margin-top: 30px; font-size: 12px; color: #888; text-align: center;">
@@ -105,9 +116,11 @@ def check_and_send_daily_notifications():
                 </body>
             </html>
             """
-            send_email(subject, html_content)
-        else:
-            logger.info("No tasks due today. Email skipped.")
+            send_email(subject, html_content, user_email)
+            emails_sent += 1
+            
+        if emails_sent == 0:
+            logger.info("No tasks due today for any user. Emails skipped.")
     
     except Exception as e:
         logger.error(f"Error compiling notifications: {e}")

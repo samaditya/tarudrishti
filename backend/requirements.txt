@@ -6,3 +6,11 @@ pydantic
 python-dotenv
 openai
 apscheduler
+langgraph
+langchain-openai
+langchain-core
+python-jose[cryptography]
+passlib[bcrypt]
+pgvector
+python-multipart
+apscheduler
