@@ -21,12 +21,17 @@ from fastapi.security import OAuth2PasswordRequestForm
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: Initialize the scheduler
-    # Startup: Initialize the scheduler
-    scheduler.start_scheduler()
+    try:
+        scheduler.start_scheduler()
+    except Exception as e:
+        print(f"Warning: Failed to start scheduler: {e}")
     
+    try:
+        models.Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        print(f"Warning: Failed to create database tables: {e}")
     yield
     # Shutdown
-    # Shutdown logic if needed (optional)
 
 # Initialize the FastAPI app
 app = FastAPI(title="Tarudrishti API", lifespan=lifespan)
@@ -40,7 +45,7 @@ app.add_middleware(
         "http://localhost:5174",
         "http://127.0.0.1:5174",
         "http://localhost:3000",
-        "*" # Allow wildcard for easy deployment on Vercel/Render
+        "https://tarudrishti.vercel.app" # Production frontend
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -49,9 +54,6 @@ app.add_middleware(
 
 # Initialize the OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-# Auto-generate the database tables based on our declarative models.
-models.Base.metadata.create_all(bind=engine)
 
 @app.get("/")
 def read_root():
