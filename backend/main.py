@@ -231,9 +231,21 @@ def analyze_plant_image(request: schemas.ImageAnalyzeRequest, current_user: mode
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Image analysis failed: {str(e)}")
 
-@app.get("/api/plants", response_model=List[schemas.PlantDetailResponse])
+@app.get("/api/plants")
 def read_plants(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
-    return db.query(models.Plant).filter(models.Plant.user_id == current_user.id).all()
+    """
+    Retrieve all plants for the current user. 
+    Manual validation added for better error reporting.
+    """
+    try:
+        plants = db.query(models.Plant).filter(models.Plant.user_id == current_user.id).all()
+        # Manually validate to catch serialization errors before FastAPI's internal layer
+        return [schemas.PlantDetailResponse.model_validate(p) for p in plants]
+    except Exception as e:
+        import traceback
+        error_msg = f"Read plants failed: {str(e)}\n{traceback.format_exc()}"
+        print(error_msg)
+        raise HTTPException(status_code=500, detail=error_msg)
 
 @app.get("/api/plants/{plant_id}", response_model=schemas.PlantDetailResponse)
 def read_plant(plant_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
