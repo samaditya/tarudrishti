@@ -1,198 +1,121 @@
-# 🌱 Tarudrishti — AI-Powered Autonomous Plant Care System
+# 🌱 Tarudrishti
 
-🔗 Live Demo: https://tarudrishti.vercel.app/
-
-Tarudrishti is an intelligent plant care platform that combines **computer vision, multi-agent AI, and real-world context (weather + history)** to help users identify plants, diagnose issues, and automate plant care.
-
-It goes beyond a simple chatbot by using a **multi-agent orchestration system** to interpret user intent, take actions, and manage plant care autonomously.
-
----
-
-## 📸 Preview
-
-
-- Home Page <img width="2930" height="1596" alt="image" src="https://github.com/user-attachments/assets/2af81afc-f272-40ce-8d3c-76d82b9480dd" />
-
-- Dashboard View <img width="2930" height="1596" alt="image" src="https://github.com/user-attachments/assets/a1a0460f-e17c-4eef-8945-88a4b1c67853" />
-
-- My Garden view <img width="2930" height="1596" alt="image" src="https://github.com/user-attachments/assets/8dbeca89-eb3a-4468-90d7-640b5f296951" />
-
-- Plant Gallery  <img width="2930" height="1596" alt="image" src="https://github.com/user-attachments/assets/dea53fc3-60e9-42c1-9a78-49a9dbe1ca69" />
-
-- AI Diagnosis Output  <img width="2930" height="1596" alt="image" src="https://github.com/user-attachments/assets/4bca9fc1-dafc-44d3-8d9c-3eb94cef1248" />
-
-- Voice Interaction  <img width="2930" height="1596" alt="image" src="https://github.com/user-attachments/assets/a3fbab69-7ba7-4129-bbf9-5b7694da4ecf" />
-
+<div align="center">
+  <h3>Your Agentic Botanical AI & Plant Care Dashboard</h3>
+  <p>A full-stack, AI-powered PWA that intelligently tracks your garden, diagnoses plant issues via images, and orchestrates complex natural language interactions using a multi-agent backend.</p>
+</div>
 
 ---
 
-## 🚀 Features
+## 📸 Screenshots
 
-- 📷 **Plant Identification** — Detect plant species using image input  
-- 🩺 **Disease Diagnosis** — Analyze plant health using image + weather context  
-- 🗣️ **Natural Language Logging** — Log care actions via text or voice  
-- 📅 **Smart Scheduling** — Automatically calculate watering & fertilization cycles  
-- 📩 **Automated Notifications** — Daily email reminders for due tasks  
-- 🌦️ **Weather-Aware Advice** — Uses real-time environmental context  
-- 🎙️ **Voice Interaction** — Web Speech API for real-time input  
+*(Replace these placeholder paths with your actual screenshots)*
 
----
+<div align="center">
+  <img src="./docs/dashboard.png" alt="Main Dashboard UI" width="800" />
+  <p><em>Premium, Apple-tier glassmorphic UI built with Framer Motion.</em></p>
+</div>
 
-## 🧠 Multi-Agent AI Architecture
-
-Tarudrishti uses a **modular multi-agent system** instead of a single LLM prompt.
-
-### 🔹 Router Agent
-- Classifies user intent  
-- Routes request to appropriate agent  
-- Uses structured outputs for deterministic behavior  
-
-### 🔹 Logger Agent (`LOG_CARE`)
-- Extracts structured actions from natural language  
-- Supports bulk operations (e.g., “water all plants”)  
-- Writes directly to database  
-
-### 🔹 Diagnostician Agent (`DIAGNOSE_PLANT`)
-- Analyzes plant images + weather context  
-- Identifies diseases, pests, deficiencies  
-- Returns actionable treatment advice  
-
-### 🔹 Onboarding Agent (`ADD_PLANT`)
-- Identifies plant species from image  
-- Extracts name + metadata  
-- Adds plant to system  
-
-### 🔹 Deletion Agent (`DELETE_PLANT`)
-- Identifies plant to remove via natural language  
-- Safely deletes from database  
-
-### 🔹 Botanist Agent (`GENERAL_CHAT`)
-- Handles general plant-related queries  
-- Provides contextual advice  
+<div align="center">
+  <img src="./docs/ai_chat.png" alt="AI Chat Sheet" width="600" />
+</div>
 
 ---
 
-## 🏗️ System Architecture
-<img width="2464" height="2330" alt="image" src="https://github.com/user-attachments/assets/4878478c-c6d7-429a-bb74-aa79b05532e0" />
+## ✨ Features
 
-### 🔍 Key Design Decisions
-
-- Used a router-based architecture instead of a single LLM prompt  
-- Enforced structured outputs using Pydantic schemas  
-- Separated intent classification from execution for reliability  
-- Integrated contextual signals (weather + history) into AI reasoning  
-
----
-
-## ⚙️ Tech Stack
-
-### Frontend
-- React 18 + Vite  
-- Tailwind CSS  
-- Framer Motion  
-- Web Speech API  
-
-### Backend
-- FastAPI  
-- SQLAlchemy (Postgres / SQLite)  
-- OpenAI API (GPT-4o, structured outputs)  
-- APScheduler  
+- **🧠 Multi-Agent AI Orchestrator:** Built with **LangGraph**, the central router dynamically classifies user intents to specialized sub-agents:
+  - **Botanist Agent:** Answers general plant care questions.
+  - **Diagnostician Agent:** Analyzes multimodal input (text + images) to diagnose plant diseases and provide action plans.
+  - **Logger Agent:** Extracts care events (watering, fertilizers) from natural language and safely logs them into your database.
+- **👁️ Automated Image Analysis:** Upload a photo of a plant, and the AI automatically extracts its common name, scientific species, and health status to bypass manual entry.
+- **⚡ Cost-Saving Semantic Caching:** Utilizes `pgvector` and OpenAI embeddings to cache and instantly retrieve answers to previously asked questions, drastically reducing redundant LLM API costs.
+- **📱 Progressive Web App (PWA):** Features full offline support via service workers. If you lose connection in your garden, the app degrades gracefully with smooth UI fallbacks.
+- **💅 "Apple-Tier" Motion Design:** Implements high-end optical math, nested border radii, and 60fps Framer Motion spring physics for an incredibly premium user experience.
+- **🔐 Multi-Tenant Security:** Robust JWT-based authentication with strict row-level schema isolation. 
 
 ---
 
-## 🔍 Key Engineering Highlights
+## 🛠️ Technology Stack
 
-- ✅ **Structured LLM Outputs** using Pydantic schemas  
-- ✅ **Intent Classification + Routing Layer**  
-- ✅ **Multimodal AI (Text + Image)**  
-- ✅ **Context Injection (Weather + History)**  
-- ✅ **Background Job Scheduling (Email Automation)**  
-- ✅ **Transaction-safe DB operations with rollback**  
+### **Frontend Client**
+- **React 18** via **Vite**
+- **Framer Motion** (Spring physics & layout animations)
+- **Tailwind CSS** (Utility-first styling & dark mode)
+- **React Query** (Server state & data fetching)
+- **Vite PWA Plugin** (Workbox caching for offline functionality)
+- **Lucide React** (Consistent iconography)
 
----
-
-## 📊 Example Workflows
-
-### 1. Natural Language Logging
-Input: "I watered all my plants and used neem oil yesterday"
-→ Router → Logger Agent
-→ Extract structured actions
-→ Store in database
-
----
-
-### 2. Disease Diagnosis
-Input: Image + "What’s wrong with this plant?"
-→ Router → Diagnostician Agent
-→ Analyze image + weather
-→ Return diagnosis + treatment
+### **Backend Engine**
+- **FastAPI** (High-performance Python web framework)
+- **LangGraph & LangChain** (Agentic AI workflows)
+- **OpenAI API** (`gpt-4o-mini` & `text-embedding-3-small`)
+- **SQLAlchemy** (ORM)
+- **PostgreSQL + pgvector** (Vector database hosted on Neon.tech)
+- **APScheduler** (Background cron jobs for daily care reminders)
 
 ---
 
-### 3. Automated Scheduling
-System checks care history daily
-→ Identifies overdue tasks
-→ Sends email notifications
+## ⚙️ Local Development Setup
 
----
+### 1. Clone the repository
+```bash
+git clone https://github.com/samaditya/tarudrishti.git
+cd tarudrishti
+```
 
-## ⚠️ Limitations
-
-- Image-based diagnosis depends on image quality  
-- Requires OpenAI API (cost considerations)  
-- Scheduling logic is rule-based (can be enhanced with AI)  
-- Not yet optimized for large-scale multi-user environments  
-
----
-
-## 🔮 Future Improvements
-
-- AI-driven dynamic scheduling (instead of fixed intervals)  
-- Mobile application  
-- Multi-user support  
-- IoT integration (soil sensors, smart irrigation)  
-- LLM cost optimization + caching  
-- Retry/fallback mechanisms for robustness  
-
----
-
-## 🛠️ Setup Instructions
-
-### Backend
+### 2. Backend Setup
+```bash
 cd backend
-python -m venv .venv
-source .venv/bin/activate # Windows: .venv\Scripts\activate
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
+```
 
-Create `.env`:
-OPENAI_API_KEY=your_key
+Create a `.env` file in the `backend/` directory:
+```env
+DATABASE_URL=postgresql://user:password@localhost/tarudrishti
+OPENAI_API_KEY=sk-...
+JWT_SECRET_KEY=your_super_secret_key
+```
 
-SMTP_EMAIL=your_email
-SMTP_PASSWORD=your_password
-NOTIFICATION_EMAIL=your_email
+Run the FastAPI server:
+```bash
+uvicorn main:app --reload --port 8000
+```
 
-Run:
-uvicorn main:app --reload
-
----
-
-### Frontend
+### 3. Frontend Setup
+Open a new terminal and navigate back to the root directory:
+```bash
 npm install
+```
 
-Create `.env`:
+Create a `.env` file in the root directory:
+```env
 VITE_API_URL=http://localhost:8000
+VITE_GOOGLE_CLIENT_ID=your_google_auth_id
+```
 
-Run:
+Run the Vite dev server:
+```bash
 npm run dev
+```
 
 ---
 
-## 📌 Key Takeaway
+## 🚀 Deployment Architecture
 
-Tarudrishti demonstrates how **LLMs can be orchestrated as specialized agents to build autonomous, real-world systems**, rather than simple chat interfaces.
+Tarudrishti is engineered for zero-downtime serverless deployments.
+
+- **Frontend:** Hosted on **Vercel** (`https://tarudrishti.vercel.app`).
+- **Backend:** Hosted on **Render** using a custom `render.yaml` Blueprint for strict memory pooling and Gunicorn worker allocation.
+- **Database:** Serverless PostgreSQL hosted on **Neon.tech** with explicit connection pooling limits to prevent burst exhaustion.
+
+### Launch Configuration (`render.yaml`)
+The project utilizes Infrastructure-as-Code for the backend. Committing to `main` will automatically trigger a Render build based on the provided YAML configurations.
 
 ---
 
-## 👨‍💻 Author
-
-Built by Samaditya Jatar  
+<div align="center">
+  <p>Built with ❤️ for plants and clean code.</p>
+</div>
