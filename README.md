@@ -54,65 +54,76 @@
 <a id="architecture"></a>
 ## 🏗️ Architecture
 
+### System Overview
+
+```mermaid
+graph TB
+    subgraph Frontend["🖥️ React / Vite Client — Vercel PWA"]
+        PG["PlantGallery"]
+        CS["AIChatSheet"]
+        SV["ScheduleView"]
+        WW["WeatherWidget"]
+    end
+
+    subgraph Backend["⚡ FastAPI Backend — Render"]
+        API["REST API Router"]
+        subgraph LG["🧠 LangGraph State Machine"]
+            Router["Router Node<br/>(Intent Classification)"]
+            Logger["Logger Agent<br/>(Structured Extraction)"]
+            Diag["Diagnostician Agent<br/>(Vision + Text)"]
+            Bot["Botanist Agent<br/>(+ Semantic Cache)"]
+            ErrN["Error Node<br/>(Fallback)"]
+        end
+        Auth["JWT Auth<br/>(get_current_user)"]
+        Sched["APScheduler<br/>(Daily 8AM Cron)"]
+    end
+
+    subgraph External["☁️ External Services"]
+        OAI["OpenAI GPT-4o-mini"]
+        EMB["OpenAI Embeddings"]
+        WA["Open-Meteo API"]
+        GOA["Google OAuth"]
+    end
+
+    subgraph DB["🗄️ PostgreSQL + pgvector — Neon.tech"]
+        Users["users"]
+        Plants["plants"]
+        Logs["care_logs"]
+        Cache["semantic_cache<br/>(Vector 1536)"]
+    end
+
+    PG & CS & SV -->|"JWT + JSON"| API
+    WW -->|"Geolocation"| WA
+    CS -->|"OAuth"| GOA
+    API --> Auth
+    Auth --> LG
+    Router -->|"LOG_CARE"| Logger
+    Router -->|"DIAGNOSE_PLANT"| Diag
+    Router -->|"GENERAL_CHAT"| Bot
+    Router -->|"Unknown"| ErrN
+    Router -->|"Structured Output"| OAI
+    Bot -->|"Embedding"| EMB
+    Bot -->|"Cache Check"| Cache
+    Logger -->|"Write"| Logs
+    Sched -->|"Query + Email"| Users
+    Users -->|"1:N"| Plants
+    Plants -->|"1:N"| Logs
 ```
-┌──────────────────────────────────────────────────────────────────────┐
-│                        REACT / VITE CLIENT                         │
-│                        (Vercel — PWA)                              │
-│                                                                    │
-│  ┌────────────┐  ┌──────────────┐  ┌───────────┐  ┌────────────┐  │
-│  │ PlantGallery│  │ AIChatSheet  │  │ScheduleView│  │WeatherWidget│ │
-│  └─────┬──────┘  └──────┬───────┘  └─────┬─────┘  └──────┬─────┘  │
-│        │                │                │                │        │
-│        └───────┬────────┴────────┬───────┘                │        │
-│                │  apiFetch()     │                         │        │
-│                │  + JWT Bearer   │  Geolocation API        │        │
-│                │  + Cold-Start   │  + Open-Meteo           │        │
-│                │    Interceptor  │                         │        │
-└────────────────┼────────────────┼─────────────────────────┼────────┘
-                 │                │                         │
-           HTTPS │          HTTPS │                    Public API
-                 ▼                ▼                         │
-┌──────────────────────────────────────────────────────────────────────┐
-│                      FASTAPI BACKEND (Render)                       │
-│                                                                     │
-│  ┌──────────────────────────────────────────────────────────────┐   │
-│  │               POST /api/chat/orchestrator                    │   │
-│  │                                                              │   │
-│  │  ┌─────────────────────────────────────────────────────┐     │   │
-│  │  │              LANGGRAPH STATE MACHINE                │     │   │
-│  │  │                                                     │     │   │
-│  │  │   ┌─────────┐    ┌──────────────┐                  │     │   │
-│  │  │   │ Router  │───▶│ route_intent │                  │     │   │
-│  │  │   │  Node   │    │  (conditional)│                  │     │   │
-│  │  │   └─────────┘    └──────┬───────┘                  │     │   │
-│  │  │                         │                          │     │   │
-│  │  │          ┌──────────────┼──────────────┐           │     │   │
-│  │  │          ▼              ▼              ▼           │     │   │
-│  │  │   ┌──────────┐  ┌─────────────┐  ┌──────────┐    │     │   │
-│  │  │   │  Logger  │  │Diagnostician│  │ Botanist │    │     │   │
-│  │  │   │  Agent   │  │   Agent     │  │  Agent   │    │     │   │
-│  │  │   └────┬─────┘  └─────────────┘  └────┬─────┘    │     │   │
-│  │  │        │                               │          │     │   │
-│  │  │        │ Structured                    │ pgvector │     │   │
-│  │  │        │ Extraction                    │ Cache    │     │   │
-│  │  │        ▼                               ▼          │     │   │
-│  │  └────────────────────────────────────────────────────┘     │   │
-│  └──────────────────────────────────────────────────────────────┘   │
-│                                                                     │
-│  ┌──────────────────────┐   ┌──────────────────────────────────┐   │
-│  │  APScheduler (Cron)  │   │  JWT Auth (get_current_user)     │   │
-│  │  Daily 8AM Mailer    │   │  Row-Level Tenant Isolation      │   │
-│  └──────────────────────┘   └──────────────────────────────────┘   │
-└───────────────────────────────┬─────────────────────────────────────┘
-                                │
-                                ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│                 POSTGRESQL + pgvector (Neon.tech)                    │
-│                                                                     │
-│   users ──1:N──▶ plants ──1:N──▶ care_logs                         │
-│                                                                     │
-│   semantic_cache (embedding Vector(1536), cosine distance < 0.15)  │
-└──────────────────────────────────────────────────────────────────────┘
+
+### Agent Routing Flow
+
+```mermaid
+graph LR
+    A["💬 User Message"] --> B["Router Node"]
+    B -->|"Structured Output<br/>(IntentClassification)"| C{"route_intent"}
+    C -->|"LOG_CARE"| D["🪵 Logger Agent<br/>Extracts: plant, action,<br/>substance, date"]
+    C -->|"DIAGNOSE_PLANT"| E["🩺 Diagnostician<br/>Multimodal: text + image"]
+    C -->|"GENERAL_CHAT"| F["🌿 Botanist Agent<br/>pgvector cache bypass"]
+    C -->|"Fallback"| G["⚠️ Error Node"]
+    D --> H["✅ JSON Response"]
+    E --> H
+    F --> H
+    G --> H
 ```
 
 ---
