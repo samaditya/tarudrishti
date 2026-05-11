@@ -5,6 +5,40 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../utils/api';
 import toast from 'react-hot-toast';
 
+/* ===========================================================================
+   Image Compression Utility
+   Resizes to max 1024px and returns raw base64 (no prefix).
+   =========================================================================== */
+async function compressAndEncodeImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1024;
+        let { width, height } = img;
+        if (width > MAX || height > MAX) {
+          const ratio = Math.min(MAX / width, MAX / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        // Return data URL for preview AND base64 for backend
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        resolve(dataUrl);
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function AddPlantModal({ isOpen, onClose }) {
   const queryClient = useQueryClient();
   const [imagePreview, setImagePreview] = useState(null);
@@ -25,20 +59,21 @@ export default function AddPlantModal({ isOpen, onClose }) {
     onClose();
   };
 
-  const handleImageCapture = (e) => {
+  const handleImageCapture = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Show preview
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setImagePreview(event.target.result);
-      // Remove data:image... prefix for backend
-      const base64 = event.target.result.split(',')[1];
+    try {
+      const compressedDataUrl = await compressAndEncodeImage(file);
+      setImagePreview(compressedDataUrl);
+      
+      const base64 = compressedDataUrl.replace(/^data:image\/jpeg;base64,/, '');
       setImageBase64(base64);
       analyzeImage(base64);
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      console.error("Compression failed", err);
+      toast.error("Failed to process image.");
+    }
   };
 
   const analyzeImage = async (base64) => {
