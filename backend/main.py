@@ -30,11 +30,21 @@ async def lifespan(app: FastAPI):
     if not check_db_connection():
         print("CRITICAL: Database connection failed during startup.")
     
+    # Startup: Create tables one by one to avoid total failure if pgvector is missing
+    table_objects = [models.User.__table__, models.Plant.__table__, models.CareLog.__table__]
+    for table in table_objects:
+        try:
+            table.create(bind=engine, checkfirst=True)
+            print(f"Table {table.name} verified/created.")
+        except Exception as e:
+            print(f"Warning: Failed to create table {table.name}: {e}")
+            
+    # Attempt to create the SemanticCache table separately
     try:
-        models.Base.metadata.create_all(bind=engine)
-        print("Database tables verified/created.")
+        models.SemanticCache.__table__.create(bind=engine, checkfirst=True)
+        print("Table semantic_cache verified/created.")
     except Exception as e:
-        print(f"Warning: Failed to create database tables: {e}")
+        print(f"Warning: SemanticCache table could not be created (likely missing pgvector extension): {e}")
     yield
     # Shutdown
 
@@ -85,6 +95,18 @@ def read_root():
     return {
         "status": "online",
         "message": "Tarudrishti Botanical Engine Active"
+    }
+
+@app.get("/api/debug/tables")
+def list_tables(db: Session = Depends(get_db)):
+    """
+    Debug endpoint to see which tables actually exist in the database.
+    """
+    from sqlalchemy import inspect
+    inspector = inspect(engine)
+    return {
+        "tables": inspector.get_table_names(),
+        "database_url_configured": bool(os.getenv("DATABASE_URL"))
     }
 
 @app.get("/api/health")
