@@ -78,11 +78,9 @@ app.add_middleware(
         "http://localhost:3000",
         "https://tarudrishti.vercel.app" # Production frontend
     ],
-    # This regex allows all Vercel preview deployments for this project
-    allow_origin_regex="https://tarudrishti-.*\.vercel\.app",
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "Origin"],
 )
 
 # Initialize the OpenAI client
@@ -217,6 +215,8 @@ def create_plant(plant: schemas.PlantCreate, db: Session = Depends(get_db), curr
     db.refresh(db_plant)
     return db_plant
 
+from openai import RateLimitError, APITimeoutError
+
 @app.post("/api/plants/analyze-image", response_model=schemas.ImageAnalyzeResponse)
 def analyze_plant_image(request: schemas.ImageAnalyzeRequest, current_user: models.User = Depends(auth.get_current_user)):
     """
@@ -244,6 +244,10 @@ def analyze_plant_image(request: schemas.ImageAnalyzeRequest, current_user: mode
             response_format=schemas.ImageAnalyzeResponse
         )
         return completion.choices[0].message.parsed
+    except RateLimitError:
+        raise HTTPException(status_code=429, detail="AI is currently overloaded. Please try again in a minute.")
+    except APITimeoutError:
+        raise HTTPException(status_code=503, detail="AI request timed out. Please try again.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Image analysis failed: {str(e)}")
 

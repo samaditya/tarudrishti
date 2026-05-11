@@ -1,3 +1,5 @@
+import toast from 'react-hot-toast';
+
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 /**
@@ -22,11 +24,21 @@ export async function apiFetch(endpoint, options = {}) {
     headers['Content-Type'] = 'application/json';
   }
 
+  let coldStartToast;
+  const coldStartTimeout = setTimeout(() => {
+    coldStartToast = toast.loading('Waking up secure server... this may take up to 30s.', {
+      id: 'cold-start-toast',
+    });
+  }, 3000);
+
   try {
     const response = await fetch(`${API_BASE}${endpoint}`, {
       ...options,
       headers,
     });
+
+    clearTimeout(coldStartTimeout);
+    if (coldStartToast) toast.dismiss(coldStartToast);
 
     if (response.status === 401) {
       // Token is likely expired or invalid. Force a logout.
@@ -36,8 +48,10 @@ export async function apiFetch(endpoint, options = {}) {
 
     return response;
   } catch (error) {
+    clearTimeout(coldStartTimeout);
+    if (coldStartToast) toast.dismiss(coldStartToast);
     console.error("Network Error:", error);
     // Throw a specific error that the UI can catch and display
-    throw new Error("Unable to connect to the server. Please check your internet connection.");
+    throw new Error("Unable to connect. The server might be unreachable.");
   }
 }

@@ -14,6 +14,14 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        runtimeCaching: [{
+          urlPattern: /^https:\/\/tarudrishti\.vercel\.app\/api\/.*/i,
+          handler: 'NetworkFirst',
+          options: { cacheName: 'api-cache', expiration: { maxEntries: 50, maxAgeSeconds: 86400 } }
+        }]
+      },
       manifest: {
         name: 'Tarudrishti',
         short_name: 'Tarudrishti',

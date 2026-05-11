@@ -115,7 +115,7 @@ def botanist_node(state: AgentState):
         # Check semantic cache if db is available
         if db:
             cached_result = db.query(models.SemanticCache).filter(
-                models.SemanticCache.embedding.cosine_distance(query_embedding) < 0.05
+                models.SemanticCache.embedding.cosine_distance(query_embedding) < 0.15
             ).first()
             
             if cached_result:
@@ -148,6 +148,10 @@ def botanist_node(state: AgentState):
             db.rollback()
         return {"final_response": {"error": f"General Chat Agent failed: {str(e)}"}}
 
+def error_node(state: AgentState):
+    """Strict fallback for hallucinated router states."""
+    return {"final_response": {"message": "I'm having trouble understanding. Could you rephrase your plant question?"}}
+
 def route_intent(state: AgentState):
     intent = state.get("intent")
     if intent == schemas.IntentType.LOG_CARE:
@@ -157,7 +161,7 @@ def route_intent(state: AgentState):
     elif intent == schemas.IntentType.GENERAL_CHAT:
         return "botanist"
     # Fallback
-    return "botanist"
+    return "error"
 
 # Build the graph
 builder = StateGraph(AgentState)
@@ -166,6 +170,7 @@ builder.add_node("router_node", router_node)
 builder.add_node("logger_node", logger_node)
 builder.add_node("diagnostician_node", diagnostician_node)
 builder.add_node("botanist_node", botanist_node)
+builder.add_node("error_node", error_node)
 
 builder.set_entry_point("router_node")
 
@@ -175,12 +180,14 @@ builder.add_conditional_edges(
     {
         "logger": "logger_node",
         "diagnostician": "diagnostician_node",
-        "botanist": "botanist_node"
+        "botanist": "botanist_node",
+        "error": "error_node"
     }
 )
 
 builder.add_edge("logger_node", END)
 builder.add_edge("diagnostician_node", END)
 builder.add_edge("botanist_node", END)
+builder.add_edge("error_node", END)
 
 tarudrishti_app = builder.compile()

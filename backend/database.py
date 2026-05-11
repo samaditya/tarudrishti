@@ -24,6 +24,9 @@ if "localhost" not in DATABASE_URL and "127.0.0.1" not in DATABASE_URL:
 
 engine = create_engine(
     DATABASE_URL,
+    pool_size=3,
+    max_overflow=5,
+    pool_timeout=30,
     pool_pre_ping=True,
     pool_recycle=300,
     connect_args=connect_args

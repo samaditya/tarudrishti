@@ -12,9 +12,13 @@ from database import get_db
 import models
 
 # Security configurations
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7")
+SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+if not SECRET_KEY and os.getenv("RENDER"):
+    raise ValueError("JWT_SECRET_KEY must be set in production.")
+elif not SECRET_KEY:
+    SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 10080 # 7 days
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 # 60 minutes
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
