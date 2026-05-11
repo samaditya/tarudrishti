@@ -13,4 +13,3 @@ python-jose[cryptography]
 passlib[bcrypt]
 pgvector
 python-multipart
-apscheduler

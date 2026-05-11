@@ -87,6 +87,25 @@ def read_root():
         "message": "Tarudrishti Botanical Engine Active"
     }
 
+@app.get("/api/health")
+def health_check(db: Session = Depends(get_db)):
+    """
+    Detailed health check to verify database and environment configuration.
+    """
+    health_status = {
+        "status": "healthy",
+        "database": "connected",
+        "openai_key": "set" if os.getenv("OPENAI_API_KEY") else "missing",
+        "environment": os.getenv("RENDER", "local")
+    }
+    try:
+        db.execute(text("SELECT 1"))
+    except Exception as e:
+        health_status["database"] = f"error: {str(e)}"
+        health_status["status"] = "unhealthy"
+    
+    return health_status
+
 @app.get("/api/test-mailer")
 def test_mailer():
     """
