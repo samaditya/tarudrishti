@@ -39,6 +39,22 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             print(f"Warning: Failed to create table {table.name}: {e}")
             
+    # CRITICAL MIGRATION: Fix missing user_id column in plants table
+    try:
+        from sqlalchemy import inspect
+        inspector = inspect(engine)
+        columns = [c['name'] for c in inspector.get_columns('plants')]
+        if 'user_id' not in columns:
+            print("Migration: Adding missing user_id column to plants table...")
+            with engine.begin() as conn:
+                # Add the column. We make it nullable first to avoid errors with existing data
+                conn.execute(text("ALTER TABLE plants ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE CASCADE;"))
+                # If there's an old user_email column, we could try to map it, 
+                # but for now we just ensure the column exists.
+            print("Migration: user_id column added successfully.")
+    except Exception as e:
+        print(f"Migration failed: {e}")
+
     # Attempt to create the SemanticCache table separately
     try:
         models.SemanticCache.__table__.create(bind=engine, checkfirst=True)
