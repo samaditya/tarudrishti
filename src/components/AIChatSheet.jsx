@@ -97,7 +97,7 @@ export default function AIChatSheet({ isOpen, onClose }) {
   /* ----- Voice Handlers ----- */
   const handleStartRecording = () => {
     if (!recognitionRef.current) {
-      alert("Voice recognition is not supported in this browser.");
+      toast.error("Voice recognition is not supported in this browser.");
       return;
     }
     recognitionRef.current._initialText = inputText.trim();
@@ -824,8 +824,8 @@ function ErrorBubble({ message, isDark }) {
             overflowWrap: 'break-word',
         }}
       >
-        <AlertCircle size={18} className="text-[#FF453A] shrink-0 mt-0.5" strokeWidth={2.5} />
-        <p className="text-[14px] font-medium leading-relaxed text-[#FF453A]">
+        <AlertCircle size={18} className="text-[#D70015] dark:text-[#FF453A] shrink-0 mt-0.5" strokeWidth={2.5} />
+        <p className="text-[14px] font-medium leading-relaxed text-[#D70015] dark:text-[#FF453A]">
           {message.content?.message || 'An unexpected error occurred.'}
         </p>
       </div>
