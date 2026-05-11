@@ -17,10 +17,16 @@ if DATABASE_URL.startswith("postgres://"):
 # Initialize the SQLAlchemy engine
 # pool_pre_ping=True prevents "SSL connection has been closed unexpectedly" errors 
 # by verifying the connection is still alive before using it.
+connect_args = {}
+if "localhost" not in DATABASE_URL and "127.0.0.1" not in DATABASE_URL:
+    # Most managed DBs (Neon, Render, etc.) require SSL
+    connect_args = {"sslmode": "require"}
+
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,
-    pool_recycle=300
+    pool_recycle=300,
+    connect_args=connect_args
 )
 
 # Create pgvector extension
@@ -39,6 +45,19 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # Base class for declarative models
 Base = declarative_base()
 
+def check_db_connection():
+    """
+    Utility to verify the database connection at startup.
+    """
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        print("Database connection successful.")
+        return True
+    except Exception as e:
+        print(f"Database connection failed: {e}")
+        return False
+
 def get_db() -> Generator:
     """
     Dependency to manage database session lifecycle.
@@ -47,5 +66,9 @@ def get_db() -> Generator:
     db = SessionLocal()
     try:
         yield db
+    except Exception as e:
+        # Log the error for debugging
+        print(f"Database session error: {e}")
+        raise
     finally:
         db.close()

@@ -7,7 +7,7 @@ from openai import OpenAI
 from langchain_core.messages import HumanMessage, AIMessage
 from graph import tarudrishti_app
 
-from database import engine, Base, get_db
+from database import engine, Base, get_db, check_db_connection
 import models
 import schemas
 
@@ -26,8 +26,13 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"Warning: Failed to start scheduler: {e}")
     
+    # Startup: Verify Database Connection
+    if not check_db_connection():
+        print("CRITICAL: Database connection failed during startup.")
+    
     try:
         models.Base.metadata.create_all(bind=engine)
+        print("Database tables verified/created.")
     except Exception as e:
         print(f"Warning: Failed to create database tables: {e}")
     yield
@@ -47,6 +52,8 @@ app.add_middleware(
         "http://localhost:3000",
         "https://tarudrishti.vercel.app" # Production frontend
     ],
+    # This regex allows all Vercel preview deployments for this project
+    allow_origin_regex="https://tarudrishti-.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -54,6 +61,24 @@ app.add_middleware(
 
 # Initialize the OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+from fastapi import Request
+from fastapi.responses import JSONResponse
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    # This helps diagnose 500 errors in production by returning the error message
+    # while ensuring CORS headers are still present.
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc), "type": type(exc).__name__},
+        headers={
+            "Access-Control-Allow-Origin": request.headers.get("origin", "*"),
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers": "*",
+        }
+    )
 
 @app.get("/")
 def read_root():
