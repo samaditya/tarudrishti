@@ -4,6 +4,7 @@ import { X, Camera, Loader2, UploadCloud, Leaf } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../utils/api';
 import toast from 'react-hot-toast';
+import { springConfig } from '../utils/animations';
 
 /* ===========================================================================
    Image Compression Utility
