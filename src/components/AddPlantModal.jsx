@@ -43,14 +43,13 @@ async function compressAndEncodeImage(file) {
 export default function AddPlantModal({ isOpen, onClose }) {
   const queryClient = useQueryClient();
   const [imagePreview, setImagePreview] = useState(null);
-  const [imageBase64, setImageBase64] = useState(null);
   const [plantDetails, setPlantDetails] = useState({ name: '', species: '' });
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
+  const galleryInputRef = useRef(null);
 
   const resetState = () => {
     setImagePreview(null);
-    setImageBase64(null);
     setPlantDetails({ name: '', species: '' });
     setIsAnalyzing(false);
   };
@@ -69,7 +68,6 @@ export default function AddPlantModal({ isOpen, onClose }) {
       setImagePreview(compressedDataUrl);
       
       const base64 = compressedDataUrl.replace(/^data:image\/jpeg;base64,/, '');
-      setImageBase64(base64);
       analyzeImage(base64);
     } catch (err) {
       console.error("Compression failed", err);
@@ -116,7 +114,7 @@ export default function AddPlantModal({ isOpen, onClose }) {
       toast.success('Plant added to your garden! 🌱');
       handleClose();
     },
-    onError: (err) => {
+    onError: () => {
       toast.error('Failed to save plant');
     }
   });
@@ -168,10 +166,9 @@ export default function AddPlantModal({ isOpen, onClose }) {
             <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-8">
               {/* Image Upload Area */}
               <motion.div 
-                whileHover={{ scale: 0.99 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full aspect-[4/3] rounded-[24px] border-2 border-dashed flex flex-col items-center justify-center cursor-pointer overflow-hidden relative group transition-all"
+                whileHover={imagePreview ? undefined : { scale: 0.99 }}
+                whileTap={imagePreview ? undefined : { scale: 0.97 }}
+                className="w-full aspect-[4/3] rounded-[24px] border-2 border-dashed flex flex-col items-center justify-center overflow-hidden relative group transition-all"
                 style={{ 
                   borderColor: imagePreview ? 'transparent' : 'var(--separator)',
                   backgroundColor: imagePreview ? 'black' : 'var(--fill-secondary)',
@@ -181,28 +178,95 @@ export default function AddPlantModal({ isOpen, onClose }) {
                 {imagePreview ? (
                   <>
                     <img src={imagePreview} alt="Preview" className="w-full h-full object-cover opacity-90 group-hover:opacity-75 transition-opacity" />
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="bg-black/60 backdrop-blur-xl px-5 py-2.5 rounded-full flex items-center gap-2.5 text-white font-bold text-[14px] border border-white/10">
-                        <Camera size={18} /> Retake Photo
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/40 backdrop-blur-[2px]">
+                      <div className="flex gap-3">
+                        <motion.button
+                          type="button"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            cameraInputRef.current?.click();
+                          }}
+                          className="bg-black/60 hover:bg-black/80 backdrop-blur-xl px-4 py-2.5 rounded-full flex items-center gap-2 text-white font-bold text-[13px] border border-white/10 shadow-lg cursor-pointer"
+                        >
+                          <Camera size={16} /> Camera
+                        </motion.button>
+                        <motion.button
+                          type="button"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            galleryInputRef.current?.click();
+                          }}
+                          className="bg-black/60 hover:bg-black/80 backdrop-blur-xl px-4 py-2.5 rounded-full flex items-center gap-2 text-white font-bold text-[13px] border border-white/10 shadow-lg cursor-pointer"
+                        >
+                          <UploadCloud size={16} /> Gallery
+                        </motion.button>
                       </div>
                     </div>
                   </>
                 ) : (
-                  <div className="flex flex-col items-center gap-4 text-[var(--text-secondary)]">
-                    <div className="w-14 h-14 rounded-full flex items-center justify-center bg-[var(--fill-tertiary)] border border-[var(--separator)]">
-                      <Camera size={28} />
-                    </div>
+                  <div className="flex flex-col items-center gap-6 w-full h-full justify-center p-6">
                     <div className="text-center">
-                      <span className="block text-[16px] font-bold text-[var(--text-primary)]">Snap a Photo</span>
-                      <span className="text-[13px] font-medium opacity-60">AI will identify the species</span>
+                      <span className="block text-[18px] font-bold text-[var(--text-primary)]">Add Plant Image</span>
+                      <span className="text-[13px] font-medium opacity-60">AI will automatically identify the species</span>
+                    </div>
+                    
+                    <div className="flex gap-4 w-full max-w-sm">
+                      {/* Camera Option */}
+                      <motion.button
+                        type="button"
+                        whileHover={{ scale: 1.03, y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          cameraInputRef.current?.click();
+                        }}
+                        className="flex-1 flex flex-col items-center gap-3 p-4 rounded-2xl border bg-[var(--fill-tertiary)] hover:bg-[var(--fill-secondary)] transition-all cursor-pointer"
+                        style={{ borderColor: 'var(--separator)' }}
+                      >
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20 shadow-inner">
+                          <Camera size={24} />
+                        </div>
+                        <span className="text-[14px] font-bold text-[var(--text-primary)]">Take Photo</span>
+                      </motion.button>
+
+                      {/* Gallery Option */}
+                      <motion.button
+                        type="button"
+                        whileHover={{ scale: 1.03, y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          galleryInputRef.current?.click();
+                        }}
+                        className="flex-1 flex flex-col items-center gap-3 p-4 rounded-2xl border bg-[var(--fill-tertiary)] hover:bg-[var(--fill-secondary)] transition-all cursor-pointer"
+                        style={{ borderColor: 'var(--separator)' }}
+                      >
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20 shadow-inner">
+                          <UploadCloud size={24} />
+                        </div>
+                        <span className="text-[14px] font-bold text-[var(--text-primary)]">From Gallery</span>
+                      </motion.button>
                     </div>
                   </div>
                 )}
+                {/* Camera Input */}
                 <input
                   type="file"
                   accept="image/*"
                   capture="environment"
-                  ref={fileInputRef}
+                  ref={cameraInputRef}
+                  onChange={handleImageCapture}
+                  className="hidden"
+                />
+                {/* Gallery Input */}
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={galleryInputRef}
                   onChange={handleImageCapture}
                   className="hidden"
                 />
