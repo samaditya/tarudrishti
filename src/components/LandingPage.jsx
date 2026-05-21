@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sun, Moon, Loader2 } from 'lucide-react';
+import { Sun, Moon, Loader2, X } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { GoogleLogin } from '@react-oauth/google';
 import Logo from './Logo';
 import { jwtDecode } from 'jwt-decode';
+import { springConfig } from '../utils/animations';
 
 /* ===========================================================================
    Premium Botanical Accents (Minimalist Animated Plants)
@@ -105,6 +106,199 @@ const GoogleIcon = () => (
 import { useAuth } from '../context/AuthContext';
 
 /* ===========================================================================
+   Forgot Password Modal
+   =========================================================================== */
+function ForgotPasswordModal({ isOpen, onClose }) {
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [status, setStatus] = useState(null); // 'success' | 'error'
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleReset = () => {
+    setEmail('');
+    setStatus(null);
+    setErrorMessage('');
+    setIsSubmitting(false);
+  };
+
+  const handleClose = () => {
+    handleReset();
+    onClose();
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setStatus(null);
+    setErrorMessage('');
+
+    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || 'Failed to send reset link');
+      }
+
+      setStatus('success');
+    } catch (err) {
+      setStatus('error');
+      setErrorMessage(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={handleClose}
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+          />
+
+          {/* Modal */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.92, y: 20 }}
+            transition={springConfig}
+            className="relative w-full max-w-md rounded-[28px] p-8 shadow-2xl z-10 flex flex-col"
+            style={{ backgroundColor: 'var(--bg-elevated)', border: '1px solid var(--separator)' }}
+          >
+            {/* Close Button */}
+            <button
+              onClick={handleClose}
+              className="absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors hover:bg-[var(--fill-secondary)]"
+            >
+              <X size={18} style={{ color: 'var(--text-secondary)' }} />
+            </button>
+
+            <AnimatePresence mode="wait">
+              {status === 'success' ? (
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="flex flex-col items-center text-center py-4"
+                >
+                  <div
+                    className="w-16 h-16 rounded-full flex items-center justify-center mb-5"
+                    style={{ backgroundColor: 'rgba(52, 199, 89, 0.1)' }}
+                  >
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#34C759" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                  <h3
+                    className="text-[20px] font-bold tracking-tight mb-2"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    Check Your Inbox
+                  </h3>
+                  <p
+                    className="text-[14px] font-medium leading-relaxed mb-6"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
+                    We've sent a password reset link to <strong style={{ color: 'var(--text-primary)' }}>{email}</strong>. Please check your email and follow the instructions.
+                  </p>
+                  <button
+                    onClick={handleClose}
+                    className="px-6 py-3 rounded-2xl font-bold text-[15px] text-white cursor-pointer transition-transform hover:scale-[1.02]"
+                    style={{ backgroundColor: 'var(--accent)' }}
+                  >
+                    Done
+                  </button>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="form"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                >
+                  <h3
+                    className="text-[22px] font-bold tracking-tight mb-2"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    Reset Password
+                  </h3>
+                  <p
+                    className="text-[14px] font-medium mb-6"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
+                    Enter your email address and we'll send you a link to reset your password.
+                  </p>
+
+                  <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                    <div className="float-input-group">
+                      <input
+                        type="email"
+                        id="forgot-email"
+                        placeholder=" "
+                        autoComplete="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                      <label htmlFor="forgot-email">Email Address</label>
+                    </div>
+
+                    {/* Error Message */}
+                    <AnimatePresence>
+                      {status === 'error' && (
+                        <motion.p
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          className="text-[13px] font-medium text-red-500"
+                        >
+                          {errorMessage}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+
+                    <motion.button
+                      type="submit"
+                      disabled={isSubmitting}
+                      whileTap={{ scale: 0.97 }}
+                      whileHover={{ scale: 1.01 }}
+                      className="w-full h-[52px] rounded-2xl font-bold text-[15px] text-white flex items-center justify-center mt-2 cursor-pointer transition-all"
+                      style={{
+                        backgroundColor: isSubmitting ? 'var(--accent-dimmed)' : 'var(--accent)',
+                        boxShadow: isSubmitting ? 'none' : '0 4px 16px var(--accent-dimmed)',
+                      }}
+                    >
+                      {isSubmitting ? (
+                        <Loader2 className="animate-spin" size={20} />
+                      ) : (
+                        'Send Reset Link'
+                      )}
+                    </motion.button>
+                  </form>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/* ===========================================================================
    MAIN LANDING PAGE COMPONENT
    =========================================================================== */
 export default function LandingPage() {
@@ -113,6 +307,7 @@ export default function LandingPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authError, setAuthError] = useState('');
+  const [isForgotOpen, setIsForgotOpen] = useState(false);
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
@@ -387,6 +582,7 @@ export default function LandingPage() {
                     <div className="flex justify-end pt-1">
                       <button
                         type="button"
+                        onClick={() => setIsForgotOpen(true)}
                         className="text-[13px] font-medium cursor-pointer transition-opacity hover:opacity-80"
                         style={{ color: 'var(--text-primary)' }}
                       >
@@ -456,6 +652,8 @@ export default function LandingPage() {
           </motion.p>
         </div>
       </div>
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal isOpen={isForgotOpen} onClose={() => setIsForgotOpen(false)} />
     </div>
   );
 }

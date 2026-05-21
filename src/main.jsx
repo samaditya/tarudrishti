@@ -8,6 +8,7 @@ import App from './App';
 import './index.css';
 import { Toaster } from 'react-hot-toast';
 import OnlineStatusProvider from './components/OnlineStatusProvider';
+import BackendHealthGate from './components/BackendHealthGate';
 
 const queryClient = new QueryClient();
 
@@ -18,7 +19,9 @@ createRoot(document.getElementById('root')).render(
         <ThemeProvider>
           <AuthProvider>
             <OnlineStatusProvider>
-              <App />
+              <BackendHealthGate>
+                <App />
+              </BackendHealthGate>
             </OnlineStatusProvider>
             <Toaster
               position="top-center"
