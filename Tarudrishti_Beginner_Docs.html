@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarudrishti: Beginner's Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--bg);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            background-image: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Floating leaves animation */
+        .leaf {
+            position: absolute;
+            font-size: 2rem;
+            animation: float 10s infinite linear;
+            opacity: 0.3;
+            z-index: 1;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+            }
+
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+            }
+        }
+
+        .container {
+            max-width: 900px;
+            margin: -2rem auto 4rem;
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            position: relative;
+            z-index: 3;
+        }
+
+        h2 {
+            color: var(--primary-dark);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            margin-top: 3rem;
+            font-size: 2rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            color: #334155;
+            margin-top: 2rem;
+        }
+
+        p,
+        ul,
+        ol {
+            font-size: 1.1rem;
+            color: #475569;
+        }
+
+        .analogy-box {
+            background-color: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+
+        .analogy-box strong {
+            color: var(--primary-dark);
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .image-container {
+            margin: 2rem 0;
+            text-align: center;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            padding: 1rem;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.25rem;
+        }
+
+        .caption {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        code {
+            background-color: #f1f5f9;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #e11d48;
+        }
+
+        .mermaid-container {
+            margin: 2rem 0;
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .resource-list {
+            background: #f8fafc;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            list-style: none;
+            margin: 0;
+        }
+
+        .resource-list li {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .resource-list li::before {
+            content: "📚";
+            margin-right: 10px;
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .tech-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .tech-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .tech-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tech-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+    </style>
+    <!-- Mermaid.js for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({ startOnLoad: true });</script>
+</head>
+
+<body>
+
+    <header>
+        <div class="leaf" style="left: 10%; animation-delay: 0s;">🌿</div>
+        <div class="leaf" style="left: 30%; animation-delay: 2s;">🍃</div>
+        <div class="leaf" style="left: 50%; animation-delay: 4s;">🌱</div>
+        <div class="leaf" style="left: 70%; animation-delay: 1s;">🍀</div>
+        <div class="leaf" style="left: 90%; animation-delay: 3s;">🪴</div>
+
+        <div class="header-content">
+            <h1>Tarudrishti</h1>
+            <p class="subtitle">A Beginner's Guide to Understanding the Botanical AI Assistant</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <h2>👋 Welcome! What is Tarudrishti?</h2>
+        <p>Imagine having a master gardener, a plant pathologist, and a diligent personal assistant available 24/7 in
+            your pocket. That's <strong>Tarudrishti</strong>. It is a web application (specifically, a Progressive Web
+            App or PWA) that helps you take care of your plants.</p>
+        <p>You can talk to it normally ("Hey, I watered my snake plant today"), send it pictures of sick leaves, and it
+            will log your actions, diagnose problems, and even email you a schedule of what to do next.</p>
+
+        <div class="analogy-box">
+            <strong>🧠 The Analogy: A Digital Clinic for Plants</strong>
+            Think of Tarudrishti as a high-tech hospital for your plants. You walk into the lobby (the <em>Frontend
+                UI</em>), and the receptionist directs you to the right department. If you just need to log a visit, a
+            clerk takes your details. If your plant is sick, you're sent to a specialist doctor. Behind the scenes, the
+            hospital staff securely stores your files and schedules follow-up appointments.
+        </div>
+
+        <div class="image-container">
+            <img src="./docs/dashboard.png" alt="Tarudrishti Dashboard">
+            <div class="caption">The Tarudrishti Dashboard: Your visual plant clinic.</div>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 3rem 0;">
+
+        <h2>🛠️ The Tech Stack (The Toolkit)</h2>
+        <p>Every web application is built using a combination of technologies. Here is what we used for Tarudrishti,
+            broken down simply:</p>
+
+        <div class="tech-grid">
+            <div class="tech-card">
+                <div class="tech-icon">⚛️</div>
+                <div class="tech-title">React & Vite (Frontend)</div>
+                <p>The buttons, text, and images you see and click on. React builds the interface, and Vite makes it
+                    load incredibly fast.</p>
+            </div>
+            <div class="tech-card">
+                <div class="tech-icon">⚡</div>
+                <div class="tech-title">FastAPI (Backend)</div>
+                <p>The "brain" of the app. It runs on a server, securely processes your requests, talks to the database,
+                    and sends data back to React.</p>
+            </div>
+            <div class="tech-card">
+                <div class="tech-icon">🐘</div>
+                <div class="tech-title">PostgreSQL (Database)</div>
+                <p>The filing cabinet. A highly reliable system that stores all your user data, plant names, and care
+                    logs securely.</p>
+            </div>
+            <div class="tech-card">
+                <div class="tech-icon">🤖</div>
+                <div class="tech-title">LangGraph & OpenAI (AI)</div>
+                <p>The intelligent agents. They read your text or look at your plant photos and figure out exactly what
+                    needs to be done.</p>
+            </div>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 3rem 0;">
+
+        <h2>🧠 Core Concepts Explained</h2>
+
+        <h3>1. Multi-Agent AI System (LangGraph)</h3>
+        <p>Instead of having one giant AI try to do everything (and get confused), Tarudrishti uses a "multi-agent"
+            approach. It breaks tasks down and hands them to specialists. This is managed by a tool called
+            <strong>LangGraph</strong>.</p>
+
+        <div class="analogy-box">
+            <strong>🚦 The Analogy: The Triage System</strong>
+            When you send a message, it first goes to the <strong>Router Node</strong> (the triage nurse). The nurse
+            looks at your message and says:
+            <ul>
+                <li><em>"I watered my rose"</em> ➡️ Sends you to the <strong>Logger Agent</strong> (clerk) to update
+                    your records.</li>
+                <li><em>"What is this white spot on my leaf?" (with image)</em> ➡️ Sends you to the
+                    <strong>Diagnostician Agent</strong> (doctor) for a prescription.</li>
+                <li><em>"How much sunlight do ferns need?"</em> ➡️ Sends you to the <strong>Botanist Agent</strong>
+                    (librarian) for general advice.</li>
+            </ul>
+        </div>
+
+        <div class="mermaid-container">
+            <div class="mermaid">
+                graph LR
+                User[You] -->|Send Message| Router{Router Agent}
+                Router -->|Update care log| Logger[Logger Agent]
+                Router -->|Sick plant image| Doctor[Diagnostician Agent]
+                Router -->|General question| Botanist[Botanist Agent]
+
+                style Router fill:#fef08a,stroke:#ca8a04,stroke-width:2px
+                style Logger fill:#bbf7d0,stroke:#16a34a,stroke-width:2px
+                style Doctor fill:#fecaca,stroke:#dc2626,stroke-width:2px
+                style Botanist fill:#bfdbfe,stroke:#2563eb,stroke-width:2px
+            </div>
+            <div class="caption">How the LangGraph router directs your messages to the right specialist.</div>
+        </div>
+
+        <div class="image-container">
+            <img src="./docs/ai_chat.png" alt="AI Chat Interface">
+            <div class="caption">The AI interface where these agents interact with you seamlessly.</div>
+        </div>
+
+        <h3>2. Semantic Caching (pgvector)</h3>
+        <p>AI can be slow and expensive. If 100 people ask "How often should I water a cactus?", we shouldn't pay the AI
+            to answer it 100 times.</p>
+        <p>We use <strong>pgvector</strong> (a feature in our database) to store past questions and answers as "vectors"
+            (mathematical coordinates). When you ask a new question, the system checks: <em>"Have we answered something
+                mathematically similar to this recently?"</em></p>
+
+        <div class="analogy-box">
+            <strong>🗂️ The Analogy: The FAQ Binder</strong>
+            Imagine the Botanist Agent has a binder of Frequently Asked Questions on their desk. Before asking the Head
+            Professor (OpenAI) a question, they quickly flip through the binder. If the answer is there, they give it to
+            you instantly. This saves time and money!
+        </div>
+
+        <h3>3. JSON and Structured Output</h3>
+        <p>When the <strong>Logger Agent</strong> reads "I gave my Monstera a cup of water today," it doesn't just reply
+            with text. It extracts the data into a strict format called JSON, which the database understands:</p>
+        <pre><code>{
+  "plant_name": "Monstera",
+  "action": "Watering",
+  "substance": "Water",
+  "date": "2026-05-12"
+}</code></pre>
+        <p>This ensures our app actually functions like a tool, not just a chatbot.</p>
+
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 3rem 0;">
+
+        <h2>📁 Navigating the Codebase</h2>
+        <p>If you look at the files in this project, it's divided into two main folders. Here is what they do:</p>
+
+        <h3>The <code>src/</code> Folder (Frontend)</h3>
+        <p>This is the React code. It runs in the user's web browser.</p>
+        <ul>
+            <li><strong>Components:</strong> Pieces of the UI, like Lego bricks. For example, <code>PlantCard.jsx</code>
+                is the visual card showing a plant, and <code>AIChatSheet.jsx</code> handles the chatting interface.
+            </li>
+            <li><strong>API Calls:</strong> It talks to the backend using a library (often React Query) to fetch your
+                plant data.</li>
+            <li><strong>Image Compression:</strong> Before sending a giant 5MB photo to the AI, the frontend shrinks it
+                using the browser's Canvas API so it uploads instantly.</li>
+        </ul>
+
+        <h3>The <code>backend/</code> Folder (Backend)</h3>
+        <p>This is the Python (FastAPI) code. It runs on a server.</p>
+        <ul>
+            <li><strong><code>main.py</code>:</strong> The main entry point. It sets up the server and the API routes
+                (URLs the frontend can call).</li>
+            <li><strong><code>graph.py</code>:</strong> The most complex part! This is where LangGraph is set up,
+                defining the Router, Logger, and Diagnostician agents.</li>
+            <li><strong><code>models.py</code>:</strong> Defines the Database tables (Users, Plants, CareLogs) using a
+                tool called SQLAlchemy.</li>
+            <li><strong>Scheduler:</strong> A background process that wakes up every day at 8 AM, checks the database,
+                and emails you if your plant needs watering.</li>
+        </ul>
+
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 3rem 0;">
+
+        <h2>📚 Learning Resources</h2>
+        <p>Want to dive deeper into these technologies? Here are some excellent beginner-friendly resources:</p>
+
+        <ul class="resource-list">
+            <li>
+                <div>
+                    <strong>React & Vite:</strong> <a href="https://react.dev/learn" target="_blank">React Official
+                        Documentation</a> - The absolute best place to learn how to build user interfaces.
+                </div>
+            </li>
+            <li>
+                <div>
+                    <strong>FastAPI:</strong> <a href="https://fastapi.tiangolo.com/tutorial/" target="_blank">FastAPI
+                        Tutorial</a> - Known as one of the most beginner-friendly and well-written documentations in the
+                    Python world.
+                </div>
+            </li>
+            <li>
+                <div>
+                    <strong>LangGraph & Multi-Agent Systems:</strong> <a
+                        href="https://langchain-ai.github.io/langgraph/" target="_blank">LangGraph Docs</a> - To
+                    understand how to link LLMs together into complex workflows.
+                </div>
+            </li>
+            <li>
+                <div>
+                    <strong>Vector Databases (pgvector):</strong> <a
+                        href="https://supabase.com/docs/guides/ai/vector-columns" target="_blank">Supabase pgvector
+                        Guide</a> - A great visual explanation of how vector embeddings and cosine similarity work.
+                </div>
+            </li>
+        </ul>
+
+        <p style="text-align: center; margin-top: 3rem; color: #94a3b8; font-size: 0.9rem;">
+            Built for Tarudrishti 🌱
+        </p>
+
+    </div>
+</body>
+
+</html>

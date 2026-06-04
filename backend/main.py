@@ -198,6 +198,74 @@ def google_auth(req: GoogleAuthRequest, db: Session = Depends(get_db)):
     access_token = auth.create_access_token(data={"sub": user.email})
     return {"access_token": access_token, "token_type": "bearer"}
 
+@app.post("/api/auth/forgot-password")
+def forgot_password(req: schemas.ForgotPasswordRequest, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == req.email).first()
+    if not user:
+        # We don't want to leak whether an email exists, so we always return 200
+        return {"status": "success", "message": "If an account exists, a reset link was sent."}
+    
+    # Generate a short-lived token (15 mins) for password reset
+    from datetime import timedelta
+    reset_token = auth.create_access_token(data={"sub": user.email, "type": "reset"}, expires_delta=timedelta(minutes=15))
+    
+    # Construct reset link
+    # In production, frontend is on a specific domain. For local testing we use localhost:5173
+    # Use environment variable for frontend URL, default to local if not set
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    reset_link = f"{frontend_url}/?reset_token={reset_token}"
+    
+    # Send email
+    subject = "Reset Your Tarudrishti Password"
+    html_content = f"""
+    <html>
+        <body style="font-family: 'Helvetica Neue', sans-serif; color: #222; line-height: 1.6; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background-color: #f4fdf4; padding: 20px; border-radius: 16px; border: 1px solid #dcf5df; text-align: center;">
+                <h2 style="color: #34C759; margin-top: 0; font-size: 24px;">Password Reset Request</h2>
+                <p style="font-size: 16px;">We received a request to reset your password. Click the button below to choose a new password.</p>
+                <p style="font-size: 14px; color: #666;">This link will expire in 15 minutes.</p>
+                
+                <a href="{reset_link}" style="display: inline-block; padding: 14px 28px; background-color: #34C759; color: white; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 16px; margin: 20px 0;">Reset Password</a>
+                
+                <p style="margin-top: 30px; font-size: 12px; color: #888;">
+                    If you didn't request this, you can safely ignore this email.<br/>
+                    Tarudrishti Botanical AI
+                </p>
+            </div>
+        </body>
+    </html>
+    """
+    import mailer
+    # We run the mailer function directly. It will fall back to stdout if creds are missing.
+    mailer.send_email(subject, html_content, user.email)
+    
+    return {"status": "success", "message": "If an account exists, a reset link was sent."}
+
+@app.post("/api/auth/reset-password")
+def reset_password(req: schemas.ResetPasswordRequest, db: Session = Depends(get_db)):
+    # Verify the token
+    from jose import JWTError, jwt
+    try:
+        payload = jwt.decode(req.token, auth.SECRET_KEY, algorithms=[auth.ALGORITHM])
+        email: str = payload.get("sub")
+        token_type: str = payload.get("type")
+        
+        if email is None or token_type != "reset":
+            raise HTTPException(status_code=400, detail="Invalid reset token.")
+            
+    except JWTError:
+        raise HTTPException(status_code=400, detail="Reset token is invalid or has expired.")
+        
+    user = db.query(models.User).filter(models.User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found.")
+        
+    # Hash new password and save
+    user.hashed_password = auth.get_password_hash(req.new_password)
+    db.commit()
+    
+    return {"status": "success", "message": "Password updated successfully."}
+
 # =============================================================================
 # Plant Endpoints
 # =============================================================================

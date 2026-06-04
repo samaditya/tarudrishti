@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tarudrishti — Interview Study Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg-surface: #12121a;
+  --bg-code: #1a1a2e;
+  --text: #e4e4ed;
+  --text-secondary: #9d9db5;
+  --text-muted: #6b6b85;
+  --accent: #34C759;
+  --accent-dim: rgba(52,199,89,0.15);
+  --border: #1e1e30;
+  --link: #60a5fa;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.75;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+.wrapper {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 60px 32px 120px;
+}
+h1 {
+  font-size: 2.8rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #34C759, #30D158, #60a5fa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 64px 0 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 40px 0 12px;
+  color: var(--accent);
+}
+p { margin: 12px 0; color: var(--text-secondary); }
+strong { color: var(--text); font-weight: 600; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+blockquote {
+  border-left: 3px solid var(--accent);
+  padding: 16px 20px;
+  margin: 24px 0;
+  background: var(--accent-dim);
+  border-radius: 0 12px 12px 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+blockquote strong { color: var(--accent); }
+hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+ul, ol { padding-left: 24px; margin: 12px 0; }
+li { margin: 6px 0; color: var(--text-secondary); }
+li strong { color: var(--text); }
+pre {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  overflow-x: auto;
+  margin: 16px 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875em;
+}
+p code, li code, td code {
+  background: var(--bg-code);
+  padding: 2px 7px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-size: 0.85em;
+  color: #f0abfc;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 0.9rem;
+}
+th {
+  text-align: left;
+  padding: 12px 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+td {
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+tr:hover td { background: rgba(52,199,89,0.03); }
+.mermaid {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px 24px;
+  margin: 20px 0;
+  text-align: center;
+  overflow-x: auto;
+}
+/* TOC sidebar indicator */
+h2::before {
+  content: '§';
+  margin-right: 10px;
+  color: var(--accent);
+  opacity: 0.4;
+}
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+@media (max-width: 640px) {
+  .wrapper { padding: 32px 16px 80px; }
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.3rem; }
+  pre { padding: 14px 16px; font-size: 0.8rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+<h1>Tarudrishti — Interview Study Guide</h1>
+<blockquote>
+<p><strong>Purpose:</strong> A deep-dive Q&amp;A reference for explaining the engineering decisions behind Tarudrishti in a technical interview. Each answer is written in first-person, as if you are explaining to a Senior Engineer.</p>
+</blockquote>
+<hr>
+<h2>Table of Contents</h2>
+<ol>
+<li><a href="#1-architecture--orchestration">Architecture &amp; Orchestration</a></li>
+<li><a href="#2-backend--performance">Backend &amp; Performance</a></li>
+<li><a href="#3-database--data-model">Database &amp; Data Model</a></li>
+<li><a href="#4-frontend--ux-engineering">Frontend &amp; UX Engineering</a></li>
+<li><a href="#5-security--multi-tenancy">Security &amp; Multi-Tenancy</a></li>
+<li><a href="#6-devops--deployment">DevOps &amp; Deployment</a></li>
+</ol>
+<hr>
+<h2>1. Architecture &amp; Orchestration</h2>
+<h3>System Overview</h3>
+<div class="mermaid">graph TB
+    subgraph "Frontend — Vercel PWA"
+        A["React Client<br/>(Vite + TailwindCSS)"]
+    end
+
+    subgraph "Backend — Render"
+        B["FastAPI Router"]
+        C["LangGraph State Machine"]
+        D["APScheduler<br/>(Daily Cron)"]
+        E["Mailer Agent"]
+    end
+
+    subgraph "External APIs"
+        F["OpenAI GPT-4o-mini"]
+        G["OpenAI Embeddings"]
+        H["Open-Meteo Weather"]
+        I["Google OAuth"]
+    end
+
+    subgraph "Database — Neon"
+        J["PostgreSQL + pgvector"]
+    end
+
+    A -->|"JWT + JSON"| B
+    B --> C
+    C -->|"Structured Output"| F
+    C -->|"Embedding"| G
+    C -->|"Read/Write"| J
+    D --> E
+    E -->|"SMTP"| K["Gmail"]
+    E -->|"Query"| J
+    A -->|"Geolocation"| H
+    A -->|"OAuth"| I</div><h3>Q: Why did you use LangGraph instead of a single LLM prompt?</h3>
+<p><strong>A:</strong> A single monolithic prompt would have needed to handle care logging, image diagnosis, and general Q&amp;A all at once. That creates three problems:</p>
+<ol>
+<li><p><strong>Prompt Bloat:</strong> The system prompt would grow to thousands of tokens, increasing latency and cost on every single request — even simple &quot;hello&quot; messages would carry the full logging instruction set.</p>
+</li>
+<li><p><strong>Output Ambiguity:</strong> A single prompt can&#39;t reliably switch between returning structured JSON (for database writes) and free-form markdown (for chat responses). You&#39;d need fragile regex parsing to determine what the LLM &quot;meant.&quot;</p>
+</li>
+<li><p><strong>Error Isolation:</strong> If the image analysis fails, it shouldn&#39;t crash the text-based chat. With a monolithic prompt, one failure mode contaminates the entire response.</p>
+</li>
+</ol>
+<p>LangGraph solves this by modeling the conversation as a <strong>compiled state machine</strong>:</p>
+<div class="mermaid">graph LR
+    Entry["🚀 Entry"] --> Router["Router Node<br/>(Intent Classification)"]
+    Router -->|"LOG_CARE"| Logger["Logger Agent<br/>(Structured Extraction)"]
+    Router -->|"DIAGNOSE_PLANT"| Diag["Diagnostician Agent<br/>(Vision + Text)"]
+    Router -->|"GENERAL_CHAT"| Bot["Botanist Agent<br/>(pgvector Cache)"]
+    Router -->|"Unknown"| Err["Error Node<br/>(Graceful Fallback)"]
+    Logger --> End["✅ END"]
+    Diag --> End
+    Bot --> End
+    Err --> End</div><p>The Router Node uses <strong>OpenAI Structured Output</strong> with a Pydantic model (<code>IntentClassification</code>) to classify intent with a confidence score. This isn&#39;t regex or keyword matching — it&#39;s a constrained decoder that guarantees valid enum output.</p>
+<p>Each specialist has its own system prompt, its own output schema, and its own error handling. The Logger Agent returns <code>CareLogExtraction</code> (a list of <code>SingleCareAction</code> objects). The Diagnostician returns free-form markdown. They never interfere with each other.</p>
+<h3>Q: How does <code>graph.py</code> maintain state across nodes?</h3>
+<p><strong>A:</strong> LangGraph uses a <code>TypedDict</code> called <code>AgentState</code> that flows through the graph:</p>
+<pre><code class="language-python">class AgentState(TypedDict):
+    messages: List[AnyMessage]      # Conversation history
+    current_date: str               # Temporal context for the Logger
+    image_base64: Optional[str]     # Multimodal input for Diagnostician
+    intent: Optional[IntentType]    # Set by Router, read by route_intent
+    final_response: Optional[Dict]  # Set by specialist, read by FastAPI
+    plants_context: List[Dict]      # User's plants for grounding
+    db: Any                         # SQLAlchemy session for cache/writes</code></pre><p>Each node receives the full state, performs its computation, and returns a <strong>partial update dictionary</strong>. LangGraph merges the update automatically. For example, the Router Node only returns <code>{&quot;intent&quot;: response.intent}</code> — it doesn&#39;t touch <code>messages</code> or <code>db</code>. This is a functional programming pattern — pure input/output with no side effects between nodes.</p>
+<h3>Q: What happens if the Router Node hallucinates an invalid intent?</h3>
+<p><strong>A:</strong> Two layers of defense:</p>
+<div class="mermaid">graph TD
+    A["Router invokes<br/>llm.with_structured_output()"] -->|"Success"| B["Returns valid IntentType enum"]
+    A -->|"Exception<br/>(parse error, network)"| C["Catches exception"]
+    C --> D["Returns GENERAL_CHAT<br/>as safe default"]
+    B --> E["route_intent() checks enum"]
+    E -->|"Known intent"| F["Routes to specialist"]
+    E -->|"Unknown value"| G["Routes to error_node<br/>(graceful message)"]</div><ol>
+<li><p><strong>Structured Output Constraint:</strong> <code>llm.with_structured_output(IntentClassification)</code> constrains the LLM&#39;s decoder to only output valid <code>IntentType</code> enum values. Invalid tokens are near-impossible.</p>
+</li>
+<li><p><strong>Deterministic Fallback:</strong> If parsing throws an exception, the Router catches it and returns <code>GENERAL_CHAT</code>. If <code>route_intent</code> receives an unrecognized enum, it routes to a dedicated <code>error_node</code>. There is <strong>no code path</strong> that can produce an unhandled edge.</p>
+</li>
+</ol>
+<hr>
+<h2>2. Backend &amp; Performance</h2>
+<h3>Q: Explain the Semantic Cache. Why <code>pgvector</code> + <code>text-embedding-3-small</code>?</h3>
+<p><strong>A:</strong> The Botanist Agent answers general questions like &quot;How often should I water a snake plant?&quot; These are asked repeatedly by different users with minor phrasing variations.</p>
+<div class="mermaid">graph TD
+    A["User asks:<br/>'How to water snake plant?'"] --> B["Generate 1536-dim embedding<br/>via text-embedding-3-small"]
+    B --> C{"cosine_distance < 0.15?<br/>(85%+ similarity)"}
+    C -->|"Cache HIT"| D["Return cached response<br/>⚡ Zero LLM call"]
+    C -->|"Cache MISS"| E["Call GPT-4o-mini"]
+    E --> F["Store response + embedding<br/>in semantic_cache table"]
+    F --> G["Return fresh response"]</div><pre><code class="language-python">db.query(SemanticCache).filter(
+    SemanticCache.embedding.cosine_distance(query_embedding) &lt; 0.15
+).first()</code></pre><p><strong>Why not a local HuggingFace model?</strong> The backend runs on Render&#39;s Starter tier with <strong>512MB RAM</strong>. Loading even a small sentence-transformer (<code>all-MiniLM-L6-v2</code> at ~90MB) would consume 20%+ of memory. With 4 Gunicorn workers, that&#39;s 360MB just for embeddings — OOM under load.</p>
+<p><code>text-embedding-3-small</code> is a <strong>stateless API call</strong> — zero memory footprint on the server. Cost: $0.00002 per 1K tokens, negligible vs. the LLM inference it saves.</p>
+<p><strong>Why 0.15 threshold?</strong> Empirically tuned. At 0.05 (original), &quot;How do I water a snake plant?&quot; wouldn&#39;t match &quot;How frequently should snake plants be watered?&quot; At 0.15, semantically equivalent phrasings hit the cache while genuinely different questions correctly miss.</p>
+<h3>Q: Why <code>pool_size=3, max_overflow=5</code> in SQLAlchemy?</h3>
+<p><strong>A:</strong> Each Gunicorn worker gets its own connection pool:</p>
+<pre><code class="language-text">Max Connections = workers × (pool_size + max_overflow)
+                = 4 × (3 + 5) = 32</code></pre><p>Neon&#39;s free tier allows <strong>100 concurrent connections</strong>. SQLAlchemy defaults (<code>pool_size=5, max_overflow=10</code>) would yield <code>4 × 15 = 60</code> — dangerously close when factoring in the APScheduler thread and migration connections.</p>
+<ul>
+<li><code>pool_recycle=300</code> — Recycles connections every 5 min to prevent Neon&#39;s serverless proxy from killing idle ones.</li>
+<li><code>pool_pre_ping=True</code> — Sends <code>SELECT 1</code> before each checkout to verify the connection is alive.</li>
+</ul>
+<h3>Q: How does the APScheduler email notification system work?</h3>
+<p><strong>A:</strong> <code>scheduler.py</code> starts a <code>BackgroundScheduler</code> (in-process thread) during FastAPI&#39;s lifespan startup:</p>
+<div class="mermaid">graph LR
+    A["FastAPI Startup"] --> B["APScheduler starts"]
+    B -->|"CronTrigger<br/>daily 8:00 AM"| C["check_and_send_daily_notifications()"]
+    C --> D["Query all plants + care_logs"]
+    D --> E["Compute overdue tasks<br/>Water: 7-day interval<br/>Fertilize: 30-day interval"]
+    E --> F["Group tasks by user email"]
+    F --> G["Render HTML email per user"]
+    G -->|"SMTP configured"| H["Send via Gmail"]
+    G -->|"No SMTP"| I["Mock to console"]</div><p>If SMTP credentials aren&#39;t configured, it gracefully falls back to console output — no crash, no silent failure.</p>
+<hr>
+<h2>3. Database &amp; Data Model</h2>
+<h3>Q: Walk me through the database schema.</h3>
+<p><strong>A:</strong> Four tables with clear ownership chains:</p>
+<div class="mermaid">erDiagram
+    USERS {
+        int id PK
+        string email UK
+        string hashed_password
+    }
+    PLANTS {
+        int id PK
+        string name
+        string species
+        string health_status
+        string image_url
+        int user_id FK
+        datetime created_at
+    }
+    CARE_LOGS {
+        int id PK
+        int plant_id FK
+        string action_type
+        string substance_used
+        datetime action_date
+        datetime created_at
+    }
+    SEMANTIC_CACHE {
+        int id PK
+        string query_text
+        string response_text
+        vector1536 embedding
+        datetime created_at
+    }
+
+    USERS ||--o{ PLANTS : "owns (cascade delete)"
+    PLANTS ||--o{ CARE_LOGS : "has (cascade delete)"</div><p>Key design decisions:</p>
+<ul>
+<li><strong>Cascade deletes:</strong> <code>cascade=&quot;all, delete-orphan&quot;</code> on relationships means deleting a user automatically deletes all their plants and care logs. No orphaned data.</li>
+<li><strong><code>image_url</code> stores base64:</strong> The compressed image data URL is stored directly in Postgres, avoiding an external object storage dependency (S3, Cloudinary) for an MVP.</li>
+<li><strong><code>SemanticCache</code> is tenant-agnostic:</strong> General botanical answers are shared across all users — &quot;How to water a snake plant?&quot; has the same answer regardless of who asks.</li>
+<li><strong><code>Vector(1536)</code>:</strong> The pgvector column stores OpenAI <code>text-embedding-3-small</code> embeddings for cosine distance queries.</li>
+</ul>
+<h3>Q: How does the ScheduleView compute overdue tasks?</h3>
+<p><strong>A:</strong> The <code>ScheduleView</code> and <code>PlantProfile</code> both use interval-based computation against care logs:</p>
+<pre><code class="language-javascript">// For each plant, find the most recent "Water" log
+const waterLogs = plant.care_logs.filter(log =&gt; log.action_type.includes('water'));
+waterLogs.sort((a, b) =&gt; new Date(b.action_date) - new Date(a.action_date));
+const lastWatered = waterLogs[0]?.action_date;
+
+// Compute days since last watering
+const diffDays = (now - lastWatered) / (1000 * 60 * 60 * 24);
+
+// If &gt;= 7 days have passed, it's overdue
+const isOverdue = diffDays &gt;= 7;</code></pre><p>This runs <strong>entirely on the frontend</strong> using data already fetched by React Query. No extra API call needed. The intervals are: Water (7 days), Fertilize (21 days), Pesticide (30 days).</p>
+<hr>
+<h2>4. Frontend &amp; UX Engineering</h2>
+<h3>Q: Walk me through the React component tree.</h3>
+<div class="mermaid">graph TD
+    Root["main.jsx"] --> Providers["GoogleOAuthProvider<br/>QueryClientProvider<br/>ThemeProvider<br/>AuthProvider<br/>OnlineStatusProvider"]
+    Providers --> App["App.jsx"]
+    App -->|"No user"| Landing["LandingPage<br/>(Auth forms + Google OAuth)"]
+    App -->|"User + plant selected"| Profile["PlantProfile<br/>(Dashboard + Gallery tabs)"]
+    App -->|"User authenticated"| Layout["Layout<br/>(Header + BottomNav)"]
+    Layout -->|"gallery tab"| Gallery["PlantGallery"]
+    Layout -->|"schedule tab"| Schedule["ScheduleView"]
+    Layout --> Chat["AIChatSheet<br/>(Bottom sheet + AI)"]
+    Gallery --> Card["PlantCard"]
+    Gallery --> Weather["WeatherWidget"]
+    Gallery --> AddModal["AddPlantModal"]</div><p><strong>Key patterns:</strong></p>
+<ul>
+<li><strong>React Query</strong> manages all server state. When the AI logs a care activity, it calls <code>queryClient.invalidateQueries({ queryKey: [&#39;plants&#39;] })</code> — the gallery and schedule re-fetch automatically.</li>
+<li><strong>No React Router:</strong> Navigation is managed via <code>useState</code> (<code>activeTab</code>, <code>selectedPlant</code>). The app is a single-screen PWA, not a multi-page SPA.</li>
+<li><strong>Context providers</strong> are layered: Theme → Auth → OnlineStatus. Each is independent and doesn&#39;t re-render siblings.</li>
+</ul>
+<h3>Q: How does the client-side image compression work?</h3>
+<p><strong>A:</strong> When a user takes a photo on a modern phone, the raw file is 3-8MB. After base64 encoding, that&#39;s ~4-11MB in the JSON payload.</p>
+<div class="mermaid">graph LR
+    A["📸 Phone Camera<br/>4000×3000 PNG<br/>~5MB"] --> B["FileReader<br/>readAsDataURL()"]
+    B --> C["new Image()"]
+    C --> D["Calculate ratio<br/>Max 1024px"]
+    D --> E["Canvas.drawImage()<br/>at reduced size"]
+    E --> F["canvas.toDataURL<br/>('image/jpeg', 0.8)"]
+    F --> G["📦 1024×768 JPEG<br/>~150KB base64"]</div><pre><code class="language-javascript">const MAX = 1024;
+const ratio = Math.min(MAX / width, MAX / height);
+width = Math.round(width * ratio);   // Maintains aspect ratio
+height = Math.round(height * ratio);
+const canvas = document.createElement('canvas');
+ctx.drawImage(img, 0, 0, width, height);
+canvas.toDataURL('image/jpeg', 0.8);  // 80% quality JPEG</code></pre><p><strong>Why this matters:</strong> Render&#39;s proxy times out at 30s. A 10MB payload on a 1Mbps mobile connection takes ~80 seconds. After compression: ~150KB uploads in under 2 seconds. Zero external libraries — hardware-accelerated Canvas API only.</p>
+<h3>Q: Explain the nested border-radius rule.</h3>
+<p><strong>A:</strong> When you nest two rounded rectangles, the inner element&#39;s radius must account for the gap between them:</p>
+<pre><code class="language-text">┌─────────────────────────────┐  ← Outer: border-radius: 20px
+│ ┌─────────────────────────┐ │     border-width: 1px
+│ │                         │ │
+│ │     Inner element       │ │  ← Inner: border-radius: 19px
+│ │                         │ │     (20 - 1 = 19)
+│ └─────────────────────────┘ │
+└─────────────────────────────┘
+
+    Inner Radius = Outer Radius − Gap</code></pre><p>In <code>PlantCard.jsx</code>:</p>
+<pre><code class="language-jsx">&lt;motion.div className="rounded-[20px]" style={{ border: '1px solid ...' }}&gt;
+  &lt;div className="rounded-[19px]"&gt;  {/* 20 - 1 = 19 */}</code></pre><p>If both had <code>20px</code>, the curves wouldn&#39;t track — the inner curve overshoots at corners, creating visible gaps where content &quot;bleeds.&quot; Apple&#39;s iOS follows this rule on every nested element.</p>
+<h3>Q: How do the Framer Motion spring physics work?</h3>
+<p><strong>A:</strong> Instead of CSS <code>transition: all 0.3s ease</code>, the app uses physics-based springs:</p>
+<pre><code class="language-javascript">{ type: "spring", stiffness: 400, damping: 30, mass: 1 }</code></pre><p><strong>Why springs over CSS transitions?</strong></p>
+<ol>
+<li><strong>Interruptibility:</strong> If a user taps during animation, a spring redirects from current velocity. CSS transitions snap.</li>
+<li><strong>Velocity-awareness:</strong> <code>whileTap={{ scale: 0.95 }}</code> releases with natural momentum — organic &quot;bounce back.&quot;</li>
+<li><strong>Consistency:</strong> Centralized <code>springConfig</code> in <code>animations.js</code> ensures every element moves with identical physics.</li>
+</ol>
+<p>Values <code>stiffness: 400, damping: 30</code> mimic iOS&#39;s default spring curve — responsive but not bouncy.</p>
+<h3>Q: How does the voice input work?</h3>
+<p><strong>A:</strong> The <code>AIChatSheet</code> uses the <strong>Web Speech API</strong> (<code>webkitSpeechRecognition</code>):</p>
+<pre><code class="language-javascript">const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = new SpeechRecognition();
+recognition.continuous = true;
+recognition.interimResults = true;  // Live transcription as user speaks
+
+recognition.onresult = (event) =&gt; {
+  // Accumulate transcript and set it as input text
+  setInputText(prefix + transcript);
+};</code></pre><p>The UI swaps the input pill for a <code>RecordingPill</code> with an animated waveform (24 bars with randomized CSS animation durations). This allows fully hands-free interaction while gardening.</p>
+<h3>Q: How does the weather context reach the AI?</h3>
+<p><strong>A:</strong> Three-step pipeline:</p>
+<ol>
+<li><strong>WeatherWidget</strong> requests browser geolocation → calls Open-Meteo API → stores result in <code>localStorage</code> under <code>tarudrishti_weather_context</code>.</li>
+<li><strong>AIChatSheet</strong> reads from localStorage before each message and injects it into the <code>ChatRequest</code> payload as <code>weather_context</code>.</li>
+<li>The LLM system prompt receives it as contextual grounding: <em>&quot;Current Location: Delhi, Temperature: 42°C&quot;</em> → AI responds: <em>&quot;At 42°C, water your snake plant every 3 days instead of weekly.&quot;</em></li>
+</ol>
+<h3>Q: What is the Typewriter effect?</h3>
+<p><strong>A:</strong> New AI responses render character-by-character using a <code>Typewriter</code> component:</p>
+<pre><code class="language-javascript">function Typewriter({ text, speed = 15 }) {
+  const [displayedText, setDisplayedText] = useState('');
+  const [index, setIndex] = useState(0);
+
+  useEffect(() =&gt; {
+    if (index &lt; text.length) {
+      const timeout = setTimeout(() =&gt; {
+        setDisplayedText(prev =&gt; prev + text[index]);
+        setIndex(prev =&gt; prev + 1);
+      }, speed);  // 15ms per character
+      return () =&gt; clearTimeout(timeout);
+    }
+  }, [index]);
+
+  return &lt;ReactMarkdown&gt;{displayedText}&lt;/ReactMarkdown&gt;;
+}</code></pre><p>Only the <strong>newest</strong> message gets the typewriter effect (via an <code>isStreaming</code> flag). Older messages in history render instantly. This prevents re-typing the entire conversation on each re-render.</p>
+<hr>
+<h2>5. Security &amp; Multi-Tenancy</h2>
+<h3>Q: How does <code>get_current_user</code> prevent tenant data leakage?</h3>
+<div class="mermaid">graph TD
+    A["HTTP Request<br/>Authorization: Bearer eyJhb..."] --> B["oauth2_scheme<br/>extracts raw JWT"]
+    B --> C["jwt.decode(token, SECRET_KEY)<br/>validates HMAC-SHA256 signature"]
+    C -->|"Invalid/Expired"| D["❌ 401 Unauthorized"]
+    C -->|"Valid"| E["Extract email from 'sub' claim"]
+    E -->|"Missing"| D
+    E -->|"Present"| F["db.query(User).filter(email)"]
+    F -->|"Not found"| D
+    F -->|"Found"| G["✅ Returns User object<br/>with user.id"]
+    G --> H["Every query filters by user.id"]</div><p>Every protected endpoint receives <code>current_user: models.User = Depends(auth.get_current_user)</code>. Every database query then filters:</p>
+<pre><code class="language-python">db.query(Plant).filter(Plant.user_id == current_user.id)</code></pre><p><strong>Why is this &quot;mathematically&quot; secure?</strong></p>
+<ul>
+<li>The <code>user_id</code> comes from <code>jwt.decode()</code> — a <strong>cryptographic verification</strong>, not user input. The user cannot modify their token&#39;s <code>sub</code> claim without invalidating the HMAC-SHA256 signature.</li>
+<li>The <code>SECRET_KEY</code> is the only value that can produce a valid signature. In production, it&#39;s auto-generated by Render and never exposed.</li>
+<li>There is <strong>no endpoint</strong> that queries <code>Plant</code> or <code>CareLog</code> without the <code>user_id</code> filter.</li>
+</ul>
+<p>Therefore: User A&#39;s token → User A&#39;s <code>user.id</code> → only User A&#39;s rows. No injection point, no IDOR vector.</p>
+<h3>Q: How does Google OAuth work in this system?</h3>
+<div class="mermaid">sequenceDiagram
+    participant U as User Browser
+    participant G as Google OAuth
+    participant F as Frontend
+    participant B as Backend
+
+    U->>G: Click "Sign in with Google"
+    G-->>F: Returns Google JWT credential
+    F->>F: jwtDecode(credential) → extract email
+    F->>B: POST /api/auth/google { email }
+    B->>B: Find or create User by email
+    B->>B: Generate backend JWT with user.email as "sub"
+    B-->>F: { access_token, token_type }
+    F->>F: Store { email, name, token } in localStorage
+    F->>F: AuthContext.login() → re-renders App</div><p>The backend <strong>never sees the Google token</strong>. It only receives the email, finds or creates a user with a random unguessable password, and issues its own JWT. This means the JWT authority is always the backend&#39;s <code>SECRET_KEY</code>, regardless of auth method.</p>
+<h3>Q: Why 60-minute token expiration instead of 7 days?</h3>
+<p><strong>A:</strong> A 7-day token is a liability. If compromised (stolen phone, XSS), the attacker has a week of access. With 60 minutes, the blast radius is limited to 1 hour. In a full production system, you&#39;d add a <strong>refresh token</strong> flow (HttpOnly cookie) for seamless re-authentication.</p>
+<h3>Q: Why remove the CORS origin regex?</h3>
+<p><strong>A:</strong> The original <code>allow_origin_regex=&quot;https://tarudrishti-.*\.vercel\.app&quot;</code> matches any subdomain like <code>tarudrishti-malicious-site.vercel.app</code>. Since anyone can deploy to Vercel, an attacker could register that domain and make authenticated cross-origin requests. Replaced with an explicit allowlist.</p>
+<hr>
+<h2>6. DevOps &amp; Deployment</h2>
+<h3>Q: Why Gunicorn wrapping Uvicorn workers?</h3>
+<div class="mermaid">graph TD
+    A["Gunicorn Master Process<br/>(no application code)"] --> W1["Uvicorn Worker 1"]
+    A --> W2["Uvicorn Worker 2"]
+    A --> W3["Uvicorn Worker 3"]
+    A --> W4["Uvicorn Worker 4"]
+
+    W2 -->|"💥 Crash (OOM)"| A
+    A -->|"Fork new worker<br/>~1 second"| W5["Uvicorn Worker 5<br/>(replacement)"]</div><p>Raw <code>uvicorn main:app</code> runs a single process. If it crashes, the entire service goes down for ~30-60 seconds until Render restarts it. With Gunicorn:</p>
+<ul>
+<li>4 workers serve requests concurrently.</li>
+<li>If one crashes, the other 3 continue with zero downtime.</li>
+<li>Gunicorn forks a replacement worker in ~1 second.</li>
+</ul>
+<h3>Q: Walk me through the cold-start interceptor.</h3>
+<p><strong>A:</strong> Render spins down after 15 minutes of inactivity. Cold start takes 15-30 seconds.</p>
+<pre><code class="language-javascript">let coldStartToast;
+const coldStartTimeout = setTimeout(() =&gt; {
+  coldStartToast = toast.loading('Waking up server... up to 30s.');
+}, 3000);  // Only triggers if response takes &gt; 3 seconds
+
+try {
+  const response = await fetch(url);
+  clearTimeout(coldStartTimeout);
+  if (coldStartToast) toast.dismiss(coldStartToast);
+  return response;
+} catch (error) {
+  clearTimeout(coldStartTimeout);
+  if (coldStartToast) toast.dismiss(coldStartToast);
+  throw error;
+}</code></pre><p>The 3-second threshold is intentional: warm responses take 200-800ms. If 3 seconds pass, it&#39;s almost certainly a cold start, and the user gets honest feedback instead of a frozen UI.</p>
+<h3>Q: How does the PWA offline behavior work?</h3>
+<p><strong>A:</strong> Three layers:</p>
+<div class="mermaid">graph TD
+    A["User goes offline"] --> B["Workbox Service Worker"]
+    A --> C["OnlineStatusProvider"]
+    A --> D["React Query Cache"]
+
+    B -->|"Serves pre-cached<br/>JS, CSS, HTML"| E["App shell renders"]
+    C -->|"Listens for 'offline' event"| F["Shows persistent toast:<br/>'No internet connection'"]
+    D -->|"Returns stale data<br/>from in-memory cache"| G["Gallery shows<br/>previously fetched plants"]
+
+    E --> H["User sees their garden<br/>+ clear offline indicator"]
+    F --> H
+    G --> H</div><p>If a user walks into their garden and loses WiFi, they see their plants, their schedule, and a clear &quot;Offline Mode&quot; indicator — not Chrome&#39;s dinosaur.</p>
+<hr>
+<h2>Quick Reference: Key File Map</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>backend/graph.py</code></td>
+<td>LangGraph state machine — Router, Logger, Diagnostician, Botanist, Error nodes</td>
+</tr>
+<tr>
+<td><code>backend/auth.py</code></td>
+<td>JWT creation, verification, <code>get_current_user</code> dependency</td>
+</tr>
+<tr>
+<td><code>backend/main.py</code></td>
+<td>FastAPI app, CORS, REST endpoints, orchestrator endpoint</td>
+</tr>
+<tr>
+<td><code>backend/models.py</code></td>
+<td>SQLAlchemy models: User, Plant, CareLog, SemanticCache (pgvector)</td>
+</tr>
+<tr>
+<td><code>backend/schemas.py</code></td>
+<td>Pydantic schemas: IntentClassification, CareLogExtraction, ChatRequest</td>
+</tr>
+<tr>
+<td><code>backend/database.py</code></td>
+<td>SQLAlchemy engine, connection pooling, pgvector extension init</td>
+</tr>
+<tr>
+<td><code>backend/mailer.py</code></td>
+<td>Email notification agent with overdue task computation</td>
+</tr>
+<tr>
+<td><code>backend/scheduler.py</code></td>
+<td>APScheduler cron trigger for daily mailer</td>
+</tr>
+<tr>
+<td><code>src/App.jsx</code></td>
+<td>Root component — conditional rendering based on auth and navigation state</td>
+</tr>
+<tr>
+<td><code>src/utils/api.js</code></td>
+<td><code>apiFetch</code> wrapper with JWT injection and cold-start interceptor</td>
+</tr>
+<tr>
+<td><code>src/utils/animations.js</code></td>
+<td>Centralized Framer Motion spring physics constants</td>
+</tr>
+<tr>
+<td><code>src/components/AIChatSheet.jsx</code></td>
+<td>Chat UI, image compression, voice input, typewriter effect</td>
+</tr>
+<tr>
+<td><code>src/components/PlantCard.jsx</code></td>
+<td>Gallery card with nested border-radius and health indicators</td>
+</tr>
+<tr>
+<td><code>src/components/PlantProfile.jsx</code></td>
+<td>Plant detail view with care metrics and activity timeline</td>
+</tr>
+<tr>
+<td><code>src/components/ScheduleView.jsx</code></td>
+<td>Care schedule with interval-based overdue computation</td>
+</tr>
+<tr>
+<td><code>src/components/WeatherWidget.jsx</code></td>
+<td>Geolocation + Open-Meteo weather with AI care suggestions</td>
+</tr>
+<tr>
+<td><code>src/components/LandingPage.jsx</code></td>
+<td>Auth forms, Google OAuth, animated SVG botanicals</td>
+</tr>
+<tr>
+<td><code>src/components/OnlineStatusProvider.jsx</code></td>
+<td>Browser online/offline event listener with toast</td>
+</tr>
+<tr>
+<td><code>src/context/AuthContext.jsx</code></td>
+<td>JWT persistence in localStorage, login/logout state</td>
+</tr>
+<tr>
+<td><code>src/context/ThemeContext.jsx</code></td>
+<td>Dark/light mode via CSS custom properties + data-theme</td>
+</tr>
+</tbody></table>
+<hr>
+<blockquote>
+<p><strong>Interview Framing Tip:</strong> Lead with the <strong>problem</strong> before the solution. Don&#39;t say &quot;I used LangGraph.&quot; Say &quot;I needed to route user intents to specialized agents with different output schemas, so I modeled it as a state machine using LangGraph.&quot; That framing demonstrates engineering judgment, not just tool familiarity.</p>
+</blockquote>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+mermaid.initialize({
+  startOnLoad: true,
+  theme: 'dark',
+  themeVariables: {
+    primaryColor: '#1e3a2f',
+    primaryTextColor: '#e4e4ed',
+    primaryBorderColor: '#34C759',
+    lineColor: '#34C759',
+    secondaryColor: '#1a1a2e',
+    tertiaryColor: '#12121a',
+    fontFamily: 'Inter, sans-serif',
+    fontSize: '14px'
+  }
+});
+</script>
+</body>
+</html>

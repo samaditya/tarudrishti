@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarudrishti Masterclass | Build an Autonomous Botanical AI</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Mermaid.js -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/tokyo-night-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script>mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose' });</script>
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --secondary: #8b5cf6;
+            --bg-dark: #020617;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --glass-blur: blur(16px);
+            --accent: #f59e0b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.7;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(16, 185, 129, 0.05), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.05), transparent 25%);
+        }
+
+        h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; font-weight: 800; }
+        
+        a { color: var(--primary); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .nav-logo { font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem; font-weight: 800; font-family: 'Outfit'; }
+        
+        /* Hero */
+        .hero {
+            padding: 10rem 2rem 6rem;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 5rem);
+            background: linear-gradient(135deg, #fff 30%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+        }
+
+        .hero p { font-size: 1.2rem; color: var(--text-dim); margin-bottom: 2rem; }
+
+        /* Container */
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 2rem 4rem; }
+
+        /* Module Sections */
+        .module {
+            background: var(--card-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 3rem;
+            margin-bottom: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .module-number {
+            background: rgba(255,255,255,0.1);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+
+        .module h2 { font-size: 2rem; }
+
+        /* Typography */
+        p { margin-bottom: 1.5rem; }
+        ul { margin-bottom: 1.5rem; padding-left: 1.5rem; color: var(--text-dim); }
+        li { margin-bottom: 0.5rem; }
+        strong { color: var(--text-main); }
+
+        /* Code Blocks */
+        pre {
+            background: #0d1117 !important;
+            padding: 1.5rem;
+            border-radius: 16px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255,255,255,0.05);
+            margin: 1.5rem 0;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        code { font-family: 'JetBrains Mono', monospace; }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1f2937;
+            padding: 0.7rem 1.2rem;
+            border-radius: 12px 12px 0 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+
+        .code-container { margin: 2rem 0; }
+        .code-container pre { margin-top: 0; border-radius: 0 0 16px 16px; }
+
+        /* Callouts */
+        .callout {
+            padding: 1.5rem;
+            border-radius: 16px;
+            margin: 2rem 0;
+            display: flex;
+            gap: 1rem;
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--primary);
+        }
+
+        .callout.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-left-color: var(--accent);
+        }
+
+        .callout i { font-size: 1.5rem; color: var(--primary); }
+        .callout.warning i { color: var(--accent); }
+
+        /* Diagram Containers */
+        .diagram-container {
+            background: rgba(0,0,0,0.2);
+            padding: 2rem;
+            border-radius: 16px;
+            margin: 2rem 0;
+            border: 1px dashed rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: center;
+        }
+        
+        .tag {
+            background: rgba(255,255,255,0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono';
+            font-size: 0.8rem;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-logo">🌱 Tarudrishti Masterclass</div>
+        <div style="color: var(--text-dim); font-size: 0.9rem;">The Ultimate Developer Guide</div>
+    </nav>
+
+    <header class="hero">
+        <h1>Build a Multi-Agent AI App from Scratch</h1>
+        <p>This masterclass will teach you <strong>exactly</strong> how to implement the architecture behind Tarudrishti. You will learn LangGraph state machines, pgvector semantic caching, and client-side image compression. No fluff, just code.</p>
+    </header>
+
+    <div class="container">
+        
+        <!-- MODULE 1 -->
+        <div class="module">
+            <div class="module-header">
+                <div class="module-number">1</div>
+                <h2>The Foundation: pgvector & Semantic Caching</h2>
+            </div>
+            
+            <p>Before we build the AI's "Brain," we need to build its "Memory." LLMs are expensive. If a user asks "How do I water my Snake Plant?" today, and asks the same question tomorrow, we shouldn't pay OpenAI twice.</p>
+            
+            <h3>What is an Embedding?</h3>
+            <p>An embedding is a way to convert text into an array of floating-point numbers (a vector). In OpenAI's `text-embedding-3-small`, this array has 1536 numbers. Words with similar meanings end up as points close to each other in a 1536-dimensional space.</p>
+
+            <div class="callout">
+                <i class="fa-solid fa-lightbulb"></i>
+                <div>
+                    <strong>The Analogy:</strong> Think of embeddings as GPS coordinates. "Dog" is at [40.7, -74.0], "Puppy" is at [40.71, -74.01]. They are physically close. "Car" is in a completely different country.
+                </div>
+            </div>
+
+            <h3>Step 1: Setup the Database Model</h3>
+            <p>We use <strong>PostgreSQL</strong> with the <a href="https://github.com/pgvector/pgvector" target="_blank">pgvector</a> extension. This allows us to store these coordinates and calculate the distance between them using native SQL.</p>
+            
+            <div class="code-container">
+                <div class="code-header"><span>models.py</span><span>Python (SQLAlchemy)</span></div>
+                <pre><code class="language-python">from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.sql import func
+from database import Base
+# IMPORTANT: Import Vector from pgvector
+from pgvector.sqlalchemy import Vector
+
+class SemanticCache(Base):
+    __tablename__ = "semantic_cache"
+
+    id = Column(Integer, primary_key=True)
+    query_text = Column(String, nullable=False)
+    response_text = Column(String, nullable=False)
+    # We specify 1536 dimensions for OpenAI's embedding model
+    embedding = Column(Vector(1536), nullable=False)
+    created_at = Column(DateTime, default=func.now())</code></pre>
+            </div>
+
+            <h3>Step 2: The Caching Logic</h3>
+            <p>When a user asks a question, we embed it, query the database for the closest vector using <strong>Cosine Distance</strong>, and if the distance is less than 0.15 (meaning 85% similarity), we return the cached answer.</p>
+
+            <div class="code-container">
+                <div class="code-header"><span>Caching Logic Snippet</span><span>Python</span></div>
+                <pre><code class="language-python">from openai import OpenAI
+client = OpenAI()
+
+# 1. Generate embedding for the new user query
+response = client.embeddings.create(
+    input="How often should I water my Pothos?",
+    model="text-embedding-3-small"
+)
+query_embedding = response.data[0].embedding
+
+# 2. Query the database using cosine_distance
+# The < operator in SQL is translated by SQLAlchemy to utilize pgvector's index
+cached_result = db.query(SemanticCache).filter(
+    SemanticCache.embedding.cosine_distance(query_embedding) < 0.15
+).first()
+
+if cached_result:
+    return cached_result.response_text # Zero LLM cost!
+else:
+    # ... call ChatOpenAI, get answer, and save it to SemanticCache
+    pass</code></pre>
+            </div>
+        </div>
+
+        <!-- MODULE 2 -->
+        <div class="module">
+            <div class="module-header">
+                <div class="module-number">2</div>
+                <h2>The Brain: LangGraph State Machine</h2>
+            </div>
+            
+            <p>Most basic AI apps pass a list of messages directly to an LLM. Tarudrishti uses <a href="https://python.langchain.com/v0.1/docs/langgraph/" target="_blank">LangGraph</a> to create a multi-agent state machine. This allows the system to route tasks to specialized agents (nodes) rather than relying on one massive prompt.</p>
+
+            <div class="diagram-container">
+                <div class="mermaid">
+                    graph LR
+                        Start((User Input)) --> Router{Router Node}
+                        Router -- intent: LOG_CARE --> Logger[Logger Agent]
+                        Router -- intent: DIAGNOSE --> Diag[Diagnostician Agent]
+                        Router -- intent: CHAT --> Botanist[Botanist Agent]
+                        
+                        Logger --> End((Output))
+                        Diag --> End
+                        Botanist --> End
+                </div>
+            </div>
+
+            <h3>Step 1: Define the State</h3>
+            <p>The "State" is a dictionary that is passed from node to node. Every node can read from it and return updates to it.</p>
+            
+            <div class="code-container">
+                <div class="code-header"><span>graph.py</span><span>Python (TypedDict)</span></div>
+                <pre><code class="language-python">from typing import TypedDict, Optional, List, Dict, Any
+from langchain_core.messages import AnyMessage
+
+class AgentState(TypedDict):
+    messages: List[AnyMessage]     # Conversation history
+    current_date: str              # Context for logging
+    image_base64: Optional[str]    # Uploaded image
+    intent: Optional[str]          # The router's decision
+    final_response: Optional[Dict] # The final output to send to the user
+    plants_context: List[Dict]     # Data injected from our database</code></pre>
+            </div>
+
+            <h3>Step 2: The Router Node (Using Structured Output)</h3>
+            <p>The Router Node's only job is to decide what the user wants. We use OpenAI's <strong>Structured Output</strong> to force the LLM to return a strict Pydantic model. It cannot return conversational text; it MUST return JSON.</p>
+
+            <div class="code-container">
+                <div class="code-header"><span>Router Implementation</span><span>Python</span></div>
+                <pre><code class="language-python">from pydantic import BaseModel
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import SystemMessage
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+# 1. Define the Schema
+class IntentClassification(BaseModel):
+    intent: str # Must be LOG_CARE, DIAGNOSE, or GENERAL_CHAT
+
+def router_node(state: AgentState):
+    # 2. Bind the schema to the LLM
+    structured_llm = llm.with_structured_output(IntentClassification)
+    
+    sys_msg = SystemMessage(content=(
+        "You are the central routing agent. Classify the user's input. "
+        "If they talk about watering/fertilizing, return LOG_CARE. "
+        "If they upload an image of a sick leaf, return DIAGNOSE."
+    ))
+    
+    # 3. Invoke. The result is guaranteed to be an IntentClassification object.
+    response = structured_llm.invoke([sys_msg] + state["messages"])
+    
+    # Return the update to the State
+    return {"intent": response.intent}</code></pre>
+            </div>
+
+            <h3>Step 3: Compiling the Graph</h3>
+            <p>Once you have defined your nodes (Router, Logger, Diagnostician), you tie them together with edges.</p>
+
+            <div class="code-container">
+                <div class="code-header"><span>Compiling the State Machine</span><span>Python</span></div>
+                <pre><code class="language-python">from langgraph.graph import StateGraph, END
+
+# Initialize
+builder = StateGraph(AgentState)
+
+# Add Nodes
+builder.add_node("router_node", router_node)
+builder.add_node("logger_node", logger_node)
+# ... add other nodes
+
+builder.set_entry_point("router_node")
+
+# Conditional Routing Function
+def route_intent(state: AgentState):
+    if state["intent"] == "LOG_CARE": return "logger"
+    if state["intent"] == "DIAGNOSE": return "diagnostician"
+    return "botanist"
+
+# Add Conditional Edges from the Router
+builder.add_conditional_edges(
+    "router_node",
+    route_intent,
+    {
+        "logger": "logger_node",
+        "diagnostician": "diagnostician_node",
+        "botanist": "botanist_node"
+    }
+)
+
+# All worker nodes go to END
+builder.add_edge("logger_node", END)
+
+# Compile!
+tarudrishti_app = builder.compile()</code></pre>
+            </div>
+        </div>
+
+        <!-- MODULE 3 -->
+        <div class="module">
+            <div class="module-header">
+                <div class="module-number">3</div>
+                <h2>The API Gateway: FastAPI Integration</h2>
+            </div>
+            
+            <p>Now we expose the LangGraph application to the frontend using FastAPI. We also inject Database context here to enforce multi-tenancy (ensuring users only interact with their own plants).</p>
+
+            <div class="callout warning">
+                <i class="fa-solid fa-shield-halved"></i>
+                <div>
+                    <strong>Security Best Practice:</strong> Never let the LLM execute arbitrary SQL. The LLM extracts the <em>intent</em> and <em>data</em>. FastAPI executes the actual SQLAlchemy inserts using the authenticated `current_user.id`.
+                </div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header"><span>main.py</span><span>Python (FastAPI)</span></div>
+                <pre><code class="language-python">@app.post("/api/chat/orchestrator")
+def orchestrate_chat(request: ChatRequest, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    
+    # 1. Fetch user's plants from DB to give the LLM context
+    user_plants = db.query(Plant).filter(Plant.user_id == current_user.id).all()
+    plants_context = [{"id": p.id, "name": p.name} for p in user_plants]
+
+    # 2. Setup the Initial State
+    initial_state = {
+        "messages": [HumanMessage(content=request.user_message)],
+        "plants_context": plants_context,
+        # ...
+    }
+
+    # 3. Invoke the Graph
+    result_state = tarudrishti_app.invoke(initial_state)
+
+    # 4. Handle DB Operations based on Intent
+    if result_state["intent"] == "LOG_CARE":
+        # Extract the structured data the Logger Agent generated
+        actions = result_state["final_response"]["extraction"]["actions"]
+        
+        for action in actions:
+            # Create a DB record manually in FastAPI
+            db_log = CareLog(
+                plant_id=find_plant_id(action["plant_name"]),
+                action_type=action["action_type"]
+            )
+            db.add(db_log)
+        db.commit()
+
+    # 5. Return JSON to React
+    return {"message": "Success", "data": result_state["final_response"]}</code></pre>
+            </div>
+        </div>
+
+        <!-- MODULE 4 -->
+        <div class="module">
+            <div class="module-header">
+                <div class="module-number">4</div>
+                <h2>The Frontend: Vision & Compression</h2>
+            </div>
+            
+            <p>Sending 5MB raw images from an iPhone camera to a backend API will cause timeouts. Before we send data to FastAPI, we use the HTML5 Canvas API in React to compress the image client-side.</p>
+
+            <div class="code-container">
+                <div class="code-header"><span>AIChatSheet.jsx - Compression Utility</span><span>JavaScript</span></div>
+                <pre><code class="language-javascript">async function compressAndEncodeImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1024; // Maximum width or height
+        let { width, height } = img;
+        
+        // Calculate new dimensions while maintaining aspect ratio
+        if (width > MAX || height > MAX) {
+          const ratio = Math.min(MAX / width, MAX / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        
+        // Draw to canvas
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Export as 80% quality JPEG Base64
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        
+        // Strip the HTML prefix to get raw base64 for OpenAI
+        const base64 = dataUrl.replace(/^data:image\/jpeg;base64,/, '');
+        resolve(base64);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}</code></pre>
+            </div>
+
+            <h3>Handling the Glassmorphic CSS</h3>
+            <p>To achieve the "Apple-tier" frosted glass look in React, use `backdrop-filter` combined with a semi-transparent background. Never use full opacity on glass elements.</p>
+
+            <div class="code-container">
+                <div class="code-header"><span>React Inline Style Example</span><span>JSX</span></div>
+                <pre><code class="language-javascript">&lt;div
+  style={{
+    backgroundColor: 'rgba(255, 255, 255, 0.05)', // 5% white
+    backdropFilter: 'blur(16px)',               // The frosted effect
+    border: '1px solid rgba(255, 255, 255, 0.1)', // Subtle light edge
+    borderRadius: '24px',
+    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)'  // Soft drop shadow
+  }}
+&gt;
+  Glassmorphic Content Here
+&lt;/div&gt;</code></pre>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Syntax Highlighting
+        hljs.highlightAll();
+    </script>
+</body>
+</html>

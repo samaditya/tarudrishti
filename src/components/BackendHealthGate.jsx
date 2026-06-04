@@ -30,7 +30,7 @@ export default function BackendHealthGate({ children }) {
     const checkHealth = async () => {
       try {
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 8000);
+        const timeout = setTimeout(() => controller.abort(), 60000); // Increased to 60s for Render cold starts
         const res = await fetch(`${API_BASE}/api/health`, { signal: controller.signal });
         clearTimeout(timeout);
         if (!cancelled && res.ok) {

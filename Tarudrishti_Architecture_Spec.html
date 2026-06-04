@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarudrishti | Engineering Architecture Specification</title>
+    <!-- Highlight.js for Code Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <!-- Mermaid.js for Diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #141414;
+            --bg-tertiary: #1a1a1a;
+            --accent: #34c759;
+            --accent-glow: rgba(52, 199, 89, 0.2);
+            --text-primary: #f5f5f5;
+            --text-secondary: #a1a1aa;
+            --text-tertiary: #71717a;
+            --border: #27272a;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding: 4rem 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            margin-bottom: 1rem;
+            background: linear-gradient(to bottom right, #fff, #555);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 3rem 0 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h2::before {
+            content: "";
+            width: 4px;
+            height: 24px;
+            background: var(--accent);
+            border-radius: 2px;
+            display: inline-block;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            color: var(--accent);
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+        }
+
+        ul, ol {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        code {
+            font-family: var(--font-mono);
+            background: var(--bg-tertiary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+            border: 1px solid var(--border);
+        }
+
+        pre {
+            margin: 1.5rem 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .mermaid {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .spec-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--accent-glow);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            h1 { font-size: 2.25rem; }
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: 12px;
+            transition: border-color 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+        }
+
+        .card h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            font-size: 0.9rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-bottom: 2px solid var(--border);
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        footer {
+            text-align: center;
+            padding: 4rem 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-tertiary);
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .complexity-math {
+            font-family: var(--font-mono);
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-left: 4px solid var(--accent);
+            margin: 1.5rem 0;
+            border-radius: 0 12px 12px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="spec-badge">System Specification v2.4.0</div>
+        <h1>Tarudrishti Architecture Spec</h1>
+        <p>Production Infrastructure, API Contracts, and Multi-Agent Behavioral Orchestration.</p>
+    </header>
+
+    <div class="container">
+        
+        <!-- SECTION 1: API CONTRACTS & DATA FLOW -->
+        <section id="api-data-flow">
+            <h2>API Contracts & Data Flow</h2>
+            <p>The system utilizes a specialized multimodal pipeline for botanical intelligence. Image data is processed client-side before transit to optimize latency and cost.</p>
+            
+            <h3>Data Transformation Pipeline</h3>
+            <div class="mermaid">
+                graph LR
+                    A[React Client: Canvas] -- "Resize (Max 1024px)" --> B[JPEG Compression (0.8)]
+                    B -- "Base64 Encoding" --> C[FastAPI: ChatRequest]
+                    C -- "Pydantic Validation" --> D[LangGraph: AgentState]
+                    D -- "Image Injection" --> E[GPT-4o-mini Vision]
+            </div>
+
+            <h3>Core API Payload: /api/chat/orchestrator</h3>
+            <pre><code class="language-json">
+{
+  "user_message": "Watered my Snake Plant today with 500ml of water.",
+  "current_date": "2024-05-15",
+  "history": [
+    {"role": "user", "content": "How is my Fiddle Leaf doing?"},
+    {"role": "assistant", "content": "It looks healthy! Just keep an eye on the leaves."}
+  ],
+  "image_base64": "iVBORw0KGgoAAAANSUhEUg...", // Optional: Multimodal input
+  "weather_context": "Location: Delhi, Temp: 42°C, Sunny" // Optional: Contextual enrichment
+}
+            </code></pre>
+
+            <h3>FastAPI Pydantic Model (Back-end)</h3>
+            <pre><code class="language-python">
+class ChatRequest(BaseModel):
+    user_message: str
+    current_date: str = Field(..., description="Temporal context for LLM")
+    image_base64: Optional[str] = None
+    history: list[dict[str, str]] = Field(default_factory=list)
+    weather_context: Optional[str] = None
+            </code></pre>
+        </section>
+
+        <!-- SECTION 2: MULTI-AGENT FAILURE MODES -->
+        <section id="multi-agent-failures">
+            <h2>Multi-Agent Failure Modes & Recovery</h2>
+            <p>The system employs a <code>StateGraph</code> architecture via LangGraph. Reliability is ensured through deterministic fallbacks and structured output validation.</p>
+
+            <div class="grid">
+                <div class="card">
+                    <h4>Router Hallucination</h4>
+                    <p>If the <code>Router Node</code> fails to generate a valid <code>IntentType</code> or hallucinates an unknown intent, the <code>route_intent</code> logic defaults to the <code>error_node</code>, prompting a graceful clarification request.</p>
+                </div>
+                <div class="card">
+                    <h4>Pydantic Parsing Errors</h4>
+                    <p>When <code>with_structured_output</code> fails (e.g., malformed JSON from OpenAI), nodes wrap the invocation in <code>try/except</code> blocks, returning a JSON response containing an <code>error</code> key instead of crashing.</p>
+                </div>
+            </div>
+
+            <h3>Timeout & Rate Limit Fallbacks</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Failure Case</th>
+                        <th>Mechanism</th>
+                        <th>Resolution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>OpenAI RateLimitError</td>
+                        <td>HTTP 429 Catch</td>
+                        <td>Returns "AI is currently overloaded. Please try again in a minute."</td>
+                    </tr>
+                    <tr>
+                        <td>APITimeoutError (Vision)</td>
+                        <td>HTTP 503 Catch</td>
+                        <td>OpenAI default timeout (60s) trigger; UI shows retry prompt.</td>
+                    </tr>
+                    <tr>
+                        <td>Graph Node Crash</td>
+                        <td>Global Exception Handler</td>
+                        <td>API returns 500 with full stack trace to frontend for debugging.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Failure Logic Flowchart</h3>
+            <div class="mermaid">
+                graph TD
+                    R[Router Node] -->|Success| C{Intent?}
+                    R -->|Hallucination/Exception| E[Error Node]
+                    C -->|LOG_CARE| L[Logger Node]
+                    C -->|DIAGNOSE| D[Diagnostician Node]
+                    L -->|Parse Error| LE[Return Error JSON]
+                    D -->|Vision Timeout| DE[HTTP 503 Fallback]
+                    E --> END[End Conversation]
+            </div>
+        </section>
+
+        <!-- SECTION 3: DATABASE SCALING & PGVECTOR -->
+        <section id="database-scaling">
+            <h2>Database Scaling & Vector Bottlenecks</h2>
+            <p>Tarudrishti uses PostgreSQL with the <code>pgvector</code> extension for semantic caching. This reduces LLM costs by ~40% for frequent botanical queries.</p>
+
+            <h3>SQLAlchemy Relationships</h3>
+            <ul>
+                <li><strong>User ↔ Plant:</strong> 1:N Relationship with <code>cascade="all, delete-orphan"</code>.</li>
+                <li><strong>Plant ↔ CareLog:</strong> 1:N Relationship with <code>cascade="all, delete-orphan"</code>.</li>
+            </ul>
+
+            <h3>The KNN Bottleneck</h3>
+            <p>The current implementation uses <strong>Exact Nearest Neighbor Search (KNN)</strong> via Cosine Distance:</p>
+            <div class="complexity-math">
+                Query Complexity: O(N * D)<br>
+                N = Number of cached queries (1536-dim vectors)<br>
+                D = Dimensions (1536 for text-embedding-3-small)
+            </div>
+
+            <p>At N > 100,000, exact search introduces linear latency (~150ms+). To resolve this, we must transition to <strong>HNSW (Hierarchical Navigable Small World)</strong> indexing.</p>
+
+            <h3>Scaling Solution: HNSW Index Implementation</h3>
+            <pre><code class="language-python">
+# Migration logic to fix scaling bottleneck
+# Replaces exact search with O(log N) approximate search
+with engine.begin() as conn:
+    conn.execute(text("""
+        CREATE INDEX ON semantic_cache 
+        USING hnsw (embedding vector_cosine_ops) 
+        WITH (m = 16, ef_construction = 64);
+    """))
+            </code></pre>
+        </section>
+
+        <!-- SECTION 4: DEPLOYMENT & INFRASTRUCTURE -->
+        <section id="deployment">
+            <h2>Deployment & Infrastructure Architecture</h2>
+            <p>The production environment is distributed across specialized serverless providers to optimize for cold-starts and database consistency.</p>
+
+            <h3>Infrastructure Diagram</h3>
+            <div class="mermaid">
+                graph TD
+                    subgraph "Frontend: Vercel"
+                        V[React PWA]
+                    end
+                    subgraph "Backend: Render"
+                        R[FastAPI / Gunicorn]
+                        S[Python Scheduler]
+                    end
+                    subgraph "Intelligence: OpenAI"
+                        LLM[GPT-4o-mini]
+                        EMB[text-embedding-3]
+                    end
+                    subgraph "Data: Neon Postgres"
+                        DB[(Postgres + pgvector)]
+                    end
+
+                    V <-->|HTTPS / JWT| R
+                    R <-->|SQL / Vector Search| DB
+                    R <-->|REST API| LLM
+                    R <-->|Vectorize Query| EMB
+            </div>
+
+            <h3>Production Environment Variables</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Purpose</th>
+                        <th>Criticality</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>DATABASE_URL</code></td>
+                        <td>Neon Postgres Connection String (SSL required)</td>
+                        <td>High</td>
+                    </tr>
+                    <tr>
+                        <td><code>OPENAI_API_KEY</code></td>
+                        <td>Access to LLM and Embeddings API</td>
+                        <td>High</td>
+                    </tr>
+                    <tr>
+                        <td><code>JWT_SECRET_KEY</code></td>
+                        <td>Encryption for Auth Tokens (HS256)</td>
+                        <td>High</td>
+                    </tr>
+                    <tr>
+                        <td><code>SMTP_PASSWORD</code></td>
+                        <td>App password for automated daily notifications</td>
+                        <td>Medium</td>
+                    </tr>
+                    <tr>
+                        <td><code>RENDER</code></td>
+                        <td>Boolean flag to differentiate Local vs Prod logic</td>
+                        <td>Medium</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+    </div>
+
+    <footer>
+        Tarudrishti Systems Spec — Confidential Engineering Document — 2024
+    </footer>
+
+    <script>
+        // Initialize Highlight.js
+        hljs.highlightAll();
+        
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#34c759',
+                primaryTextColor: '#fff',
+                primaryBorderColor: '#27272a',
+                lineColor: '#34c759',
+                secondaryColor: '#141414',
+                tertiaryColor: '#0a0a0a'
+            }
+        });
+    </script>
+</body>
+</html>
